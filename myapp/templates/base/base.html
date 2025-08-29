@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'myapp/style.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Vertical Navigation Bar -->
+        <nav class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span class="logo-text">SREC-CSE</span>
+                </div>
+                <button class="toggle-btn" id="toggleBtn">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+
+            <!-- Theme Toggle -->
+            <div class="theme-toggle">
+                <button class="theme-btn" id="themeToggle">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                    <span class="theme-text">Dark Mode</span>
+                </button>
+            </div>
+
+            <!-- Navigation Menu -->
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'login' %}" class="nav-link" data-page="login">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span class="nav-text">Login</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link active" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'manage' %}" class="nav-link" data-page="manage">
+                        <i class="fas fa-cogs"></i>
+                        <span class="nav-text">Manage</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'student' %}" class="nav-link" data-page="students">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Students</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span class="username">AjAjish</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content" id="mainContent">
+            <div class="content-header">
+                <h1 id="pageTitle">Dashboard</h1>
+                <div class="breadcrumb">
+                    <span id="breadcrumbPath">Home / Dashboard</span>
+                </div>
+            </div>
+            
+            <div class="content-body">
+                {% block content %}
+                {% endblock %}
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Theme Toggle Functionality
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.getElementById('themeIcon');
+        const themeText = document.querySelector('.theme-text');
+        const body = document.body;
+
+        // Load saved theme
+        const savedTheme = localStorage.getItem('theme') || 'light';
+        body.setAttribute('data-theme', savedTheme);
+        updateThemeButton(savedTheme);
+
+        themeToggle.addEventListener('click', () => {
+            const currentTheme = body.getAttribute('data-theme');
+            const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            
+            body.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+            updateThemeButton(newTheme);
+        });
+
+        function updateThemeButton(theme) {
+            if (theme === 'dark') {
+                themeIcon.className = 'fas fa-sun';
+                themeText.textContent = 'Light Mode';
+            } else {
+                themeIcon.className = 'fas fa-moon';
+                themeText.textContent = 'Dark Mode';
+            }
+        }
+
+        // Sidebar Toggle Functionality
+        const toggleBtn = document.getElementById('toggleBtn');
+        const sidebar = document.getElementById('sidebar');
+        const mainContent = document.getElementById('mainContent');
+
+        toggleBtn.addEventListener('click', () => {
+            sidebar.classList.toggle('collapsed');
+            mainContent.classList.toggle('expanded');
+        });
+
+        // Navigation Functionality
+        const navLinks = document.querySelectorAll('.nav-link');
+        const pageTitle = document.getElementById('pageTitle');
+        const breadcrumbPath = document.getElementById('breadcrumbPath');
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                // Only prevent default and use custom navigation for links with href="#"
+                if (link.getAttribute('href') === '#') {
+                    e.preventDefault();
+                    // Remove active class from all links
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    // Add active class to clicked link
+                    link.classList.add('active');
+                    // Update page title and breadcrumb
+                    const page = link.getAttribute('data-page');
+                    const pageName = link.querySelector('.nav-text').textContent;
+                    pageTitle.textContent = pageName;
+                    breadcrumbPath.textContent = `Home / ${pageName}`;
+                    // Add smooth transition effect
+                    const contentBody = document.querySelector('.content-body');
+                    contentBody.style.opacity = '0.5';
+                    setTimeout(() => {
+                        contentBody.style.opacity = '1';
+                    }, 150);
+                }
+                // Otherwise, let the browser follow the link
+            });
+        });
+
+        // Mobile responsiveness
+        window.addEventListener('resize', () => {
+            if (window.innerWidth <= 768) {
+                sidebar.classList.add('mobile');
+            } else {
+                sidebar.classList.remove('mobile');
+            }
+        });
+
+        // Initialize mobile check
+        if (window.innerWidth <= 768) {
+            sidebar.classList.add('mobile');
+        }
+
+        // Close sidebar on mobile when clicking outside
+        document.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                if (!sidebar.contains(e.target) && !toggleBtn.contains(e.target)) {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                }
+            }
+        });
+
+        // Smooth hover effects for navigation items
+        navLinks.forEach(link => {
+            link.addEventListener('mouseenter', () => {
+                if (!link.classList.contains('active')) {
+                    link.style.transform = 'translateX(5px)';
+                }
+            });
+            
+            link.addEventListener('mouseleave', () => {
+                if (!link.classList.contains('active')) {
+                    link.style.transform = 'translateX(0)';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
