@@ -1,3 +1,31 @@
 from django.db import models
+import uuid
 
-# Create your models here.
+class Student(models.Model):
+    name = models.CharField(max_length=100, null=True, blank=True)
+    roll_number = models.CharField(max_length=15, unique=True, null=True, blank=True)
+    course = models.CharField(default="BE Computer Science and Engineering",max_length=50)
+    year = models.IntegerField(null=True, blank=True)
+    class_section = models.CharField(max_length=10, null=True, blank=True)
+    attendance = models.CharField(
+        choices=[('Present', 'Present'), ('Absent', 'Absent')],
+        max_length=10,
+        default='Absent'
+    )
+
+    attendance_record = models.JSONField(default=dict, blank=True, null=True)
+
+    def __str__(self):
+        return f"{self.name} ({self.roll_number}) - {self.class_section}, Year {self.year}, Course: {self.course}"
+
+
+class User(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    username = models.CharField(max_length=100, unique=True)
+    email = models.EmailField(unique=True)
+    password = models.CharField(max_length=100)
+    role = models.CharField(default="staff", max_length=10)
+
+    def __str__(self):
+        return f"{self.id} - {self.username} ({self.email}) - {self.password}"
+  
