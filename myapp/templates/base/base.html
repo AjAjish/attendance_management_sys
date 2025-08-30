@@ -17,21 +17,28 @@
                     <i class="fas fa-graduation-cap"></i>
                     <span class="logo-text">SREC-CSE</span>
                 </div>
-                <button class="toggle-btn" id="toggleBtn">
+                <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar">
                     <i class="fas fa-bars"></i>
                 </button>
             </div>
 
             <!-- Theme Toggle -->
             <div class="theme-toggle">
-                <button class="theme-btn" id="themeToggle">
+                <button class="theme-btn" id="themeToggle" aria-label="Toggle theme">
                     <i class="fas fa-moon" id="themeIcon"></i>
                     <span class="theme-text">Dark Mode</span>
                 </button>
             </div>
 
+            {% if not id %}
             <!-- Navigation Menu -->
             <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'home' %}" class="nav-link" data-page="home">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-text">Home</span>
+                    </a>
+                </li>
                 <li class="nav-item">
                     <a href="{% url 'login' %}" class="nav-link" data-page="login">
                         <i class="fas fa-sign-in-alt"></i>
@@ -39,7 +46,7 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'dashboard' %}" class="nav-link active" data-page="dashboard">
+                    <a href="{% url 'dashboard' %}" class="nav-link" data-page="dashboard">
                         <i class="fas fa-tachometer-alt"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
@@ -68,20 +75,69 @@
                     <span class="user-role">Administrator</span>
                 </div>
             </div>
+
+            {% endif %}
+
+            {% if id %}
+            <!-- Navigation Menu -->
+            <ul class="nav-menu">
+                <li class="nav-item">
+                    <a href="{% url 'home_with_id' id %}" class="nav-link" data-page="home">
+                        <i class="fas fa-home"></i>
+                        <span class="nav-text">Home</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'dashboard_with_id' id=id %}" class="nav-link" data-page="dashboard">
+                        <i class="fas fa-tachometer-alt"></i>
+                        <span class="nav-text">Dashboard</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'manage_with_id' id=id %}" class="nav-link" data-page="manage">
+                        <i class="fas fa-cogs"></i>
+                        <span class="nav-text">Manage</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'student_with_id' id=id %}" class="nav-link" data-page="students">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Students</span>
+                    </a>
+                </li>
+            </ul>
+
+            <!-- User Info -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span class="username">AjAjish</span>
+                    <span class="user-role">Administrator</span>
+                </div>
+            </div>
+            {% endif %}
+    
         </nav>
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
             <div class="content-header">
-                <h1 id="pageTitle">Dashboard</h1>
+                <div class="header-bar">
+                    <button id="backBtn" class="btn back-btn" type="button" aria-label="Go back">
+                        <i class="fas fa-arrow-left"></i>
+                        <span class="back-text">Back</span>
+                    </button>
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
                 <div class="breadcrumb">
                     <span id="breadcrumbPath">Home / Dashboard</span>
                 </div>
             </div>
             
             <div class="content-body">
-                {% block content %}
-                {% endblock %}
+                {% block content %}{% endblock %}
             </div>
         </main>
     </div>
@@ -98,10 +154,9 @@
         body.setAttribute('data-theme', savedTheme);
         updateThemeButton(savedTheme);
 
-        themeToggle.addEventListener('click', () => {
+        themeToggle?.addEventListener('click', () => {
             const currentTheme = body.getAttribute('data-theme');
             const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            
             body.setAttribute('data-theme', newTheme);
             localStorage.setItem('theme', newTheme);
             updateThemeButton(newTheme);
@@ -122,54 +177,92 @@
         const sidebar = document.getElementById('sidebar');
         const mainContent = document.getElementById('mainContent');
 
-        toggleBtn.addEventListener('click', () => {
+        toggleBtn?.addEventListener('click', () => {
             sidebar.classList.toggle('collapsed');
             mainContent.classList.toggle('expanded');
         });
 
-        // Navigation Functionality
+        // Navigation: set active based on current URL (works across page loads)
         const navLinks = document.querySelectorAll('.nav-link');
         const pageTitle = document.getElementById('pageTitle');
         const breadcrumbPath = document.getElementById('breadcrumbPath');
 
-        navLinks.forEach(link => {
-            link.addEventListener('click', (e) => {
-                // Only prevent default and use custom navigation for links with href="#"
-                if (link.getAttribute('href') === '#') {
-                    e.preventDefault();
-                    // Remove active class from all links
-                    navLinks.forEach(l => l.classList.remove('active'));
-                    // Add active class to clicked link
-                    link.classList.add('active');
-                    // Update page title and breadcrumb
-                    const page = link.getAttribute('data-page');
-                    const pageName = link.querySelector('.nav-text').textContent;
-                    pageTitle.textContent = pageName;
-                    breadcrumbPath.textContent = `Home / ${pageName}`;
-                    // Add smooth transition effect
-                    const contentBody = document.querySelector('.content-body');
-                    contentBody.style.opacity = '0.5';
-                    setTimeout(() => {
-                        contentBody.style.opacity = '1';
-                    }, 150);
+        function normalizePath(p) {
+            if (!p) return '/';
+            const trimmed = p.replace(/\/+$/,'');
+            return trimmed === '' ? '/' : trimmed;
+        }
+
+        function setActiveNavFromLocation() {
+            const currentPath = normalizePath(window.location.pathname);
+            let bestMatch = null;
+            let bestLen = -1;
+
+            navLinks.forEach(link => {
+                const linkPath = normalizePath(new URL(link.href, window.location.origin).pathname);
+                const exact = linkPath === currentPath;
+                const isPrefix = currentPath.startsWith(linkPath + '/') && linkPath !== '/';
+                if (exact || isPrefix) {
+                    const len = linkPath.length;
+                    if (len > bestLen) {
+                        bestLen = len;
+                        bestMatch = link;
+                    }
                 }
-                // Otherwise, let the browser follow the link
+            });
+
+            // Fallback: choose Home if nothing matched
+            if (!bestMatch) {
+                bestMatch = Array.from(navLinks).find(l =>
+                    normalizePath(new URL(l.href, window.location.origin).pathname) === '/'
+                );
+            }
+
+            navLinks.forEach(l => {
+                l.classList.remove('active');
+                l.removeAttribute('aria-current');
+            });
+
+            if (bestMatch) {
+                bestMatch.classList.add('active');
+                bestMatch.setAttribute('aria-current', 'page');
+                const pageName = bestMatch.querySelector('.nav-text')?.textContent?.trim() || 'Dashboard';
+                pageTitle.textContent = pageName;
+                breadcrumbPath.textContent = `Home / ${pageName}`;
+            }
+        }
+
+        // Optional: visual feedback before navigation (doesn't prevent navigation)
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                navLinks.forEach(l => l.classList.remove('active'));
+                link.classList.add('active');
             });
         });
 
+        setActiveNavFromLocation();
+
+        // Back button behavior with fallback to Home
+        const backBtn = document.getElementById('backBtn');
+        backBtn?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.history.length > 1) {
+                window.history.back();
+            } else {
+                window.location.href = "{% url 'home' %}";
+            }
+        });
+
         // Mobile responsiveness
-        window.addEventListener('resize', () => {
+        function applyMobileClass() {
             if (window.innerWidth <= 768) {
                 sidebar.classList.add('mobile');
             } else {
                 sidebar.classList.remove('mobile');
             }
-        });
-
-        // Initialize mobile check
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('mobile');
         }
+        window.addEventListener('resize', applyMobileClass);
+        applyMobileClass();
 
         // Close sidebar on mobile when clicking outside
         document.addEventListener('click', (e) => {
@@ -179,21 +272,6 @@
                     mainContent.classList.add('expanded');
                 }
             }
-        });
-
-        // Smooth hover effects for navigation items
-        navLinks.forEach(link => {
-            link.addEventListener('mouseenter', () => {
-                if (!link.classList.contains('active')) {
-                    link.style.transform = 'translateX(5px)';
-                }
-            });
-            
-            link.addEventListener('mouseleave', () => {
-                if (!link.classList.contains('active')) {
-                    link.style.transform = 'translateX(0)';
-                }
-            });
         });
     </script>
 </body>

@@ -165,6 +165,50 @@ body {
     display: none;
 }
 
+/* --- Back Button & Header Bar (Add these to your existing CSS) --- */
+.header-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+
+.back-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    cursor: pointer;
+    line-height: 1;
+    transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.1s ease;
+}
+
+.back-btn i {
+    font-size: 14px;
+}
+
+.back-btn:hover {
+    background-color: var(--bg-tertiary);
+    border-color: var(--border-color);
+}
+
+.back-btn:active {
+    transform: translateY(1px);
+}
+
+[data-theme="dark"] .back-btn:hover {
+    background-color: #333333;
+}
+
+/* Keep the header title nicely aligned when button is present */
+.content-header h1 {
+    margin: 0;
+}
+
 /* Navigation Menu */
 .nav-menu {
     list-style: none;
@@ -393,6 +437,84 @@ body {
 
 .sidebar::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.5);
+}
+
+/* --- Home Page Styles --- */
+.home-welcome-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 60vh;
+}
+
+.home-welcome-card {
+    background: linear-gradient(135deg, var(--primary-color), #5dade2 80%);
+    color: white;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px var(--shadow-medium);
+    padding: 48px 36px 36px 36px;
+    max-width: 450px;
+    width: 100%;
+    text-align: center;
+    animation: fadeIn 0.7s;
+}
+
+.home-welcome-card h2 {
+    font-size: 2.1rem;
+    font-weight: 800;
+    margin-bottom: 16px;
+}
+
+.home-welcome-card .eduportal-brand {
+    font-weight: 700;
+    color: #f7ca18;
+    letter-spacing: 1px;
+}
+
+.home-welcome-card p {
+    font-size: 1.1rem;
+    margin-bottom: 28px;
+}
+
+.home-quick-links {
+    display: flex;
+    justify-content: center;
+    gap: 22px;
+    margin-top: 12px;
+}
+
+.home-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.06rem;
+    padding: 12px 32px;
+    border-radius: 8px;
+    font-weight: 500;
+    box-shadow: 0 2px 8px rgba(52, 152, 219, 0.18);
+    transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+
+.btn-secondary {
+    background-color: var(--bg-primary);
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary-color);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(52, 152, 219, 0.22);
+}
+
+@media (max-width: 480px) {
+    .home-welcome-card {
+        padding: 28px 12px 20px 12px;
+    }
+    .home-quick-links {
+        flex-direction: column;
+        gap: 13px;
+    }
 }
 
 /* Animation Classes */
