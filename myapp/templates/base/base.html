@@ -9,6 +9,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
+    <!-- Toast Message Container -->
+    <div id="toast" class="toast-message"></div>
     <div class="container">
         <!-- Vertical Navigation Bar -->
         <nav class="sidebar" id="sidebar">
@@ -29,9 +31,9 @@
                     <span class="theme-text">Dark Mode</span>
                 </button>
             </div>
-
-            {% if not id %}
+            
             <!-- Navigation Menu -->
+            {% if not user.id %}
             <ul class="nav-menu">
                 <li class="nav-item">
                     <a href="{% url 'home' %}" class="nav-link" data-page="home">
@@ -64,49 +66,39 @@
                     </a>
                 </li>
             </ul>
-
-            <!-- User Info -->
-            <div class="user-info">
-                <div class="user-avatar">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <div class="user-details">
-                    <span class="username">AjAjish</span>
-                    <span class="user-role">Administrator</span>
-                </div>
-            </div>
-
             {% endif %}
 
-            {% if id %}
-            <!-- Navigation Menu -->
+            {% if user.id %}
+
             <ul class="nav-menu">
                 <li class="nav-item">
-                    <a href="{% url 'home_with_id' id %}" class="nav-link" data-page="home">
+                    <a href="{% url 'home_with_id' id=user.id %}" class="nav-link" data-page="home">
                         <i class="fas fa-home"></i>
                         <span class="nav-text">Home</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'dashboard_with_id' id=id %}" class="nav-link" data-page="dashboard">
+                    <a href="{% url 'dashboard_with_id' id=user.id %}" class="nav-link" data-page="dashboard">
                         <i class="fas fa-tachometer-alt"></i>
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'manage_with_id' id=id %}" class="nav-link" data-page="manage">
+                    <a href="{% url 'manage_with_id' id=user.id %}" class="nav-link" data-page="manage">
                         <i class="fas fa-cogs"></i>
                         <span class="nav-text">Manage</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'student_with_id' id=id %}" class="nav-link" data-page="students">
+                    <a href="{% url 'student_with_id' id=user.id %}" class="nav-link" data-page="students">
                         <i class="fas fa-users"></i>
                         <span class="nav-text">Students</span>
                     </a>
                 </li>
             </ul>
 
+            {% endif %}
+
             <!-- User Info -->
             <div class="user-info">
                 <div class="user-avatar">
@@ -117,19 +109,30 @@
                     <span class="user-role">Administrator</span>
                 </div>
             </div>
-            {% endif %}
-    
         </nav>
 
         <!-- Main Content -->
         <main class="main-content" id="mainContent">
             <div class="content-header">
                 <div class="header-bar">
-                    <button id="backBtn" class="btn back-btn" type="button" aria-label="Go back">
-                        <i class="fas fa-arrow-left"></i>
-                        <span class="back-text">Back</span>
-                    </button>
-                    <h1 id="pageTitle">Dashboard</h1>
+                    <div class="header-left">
+                        <button id="backBtn" class="btn back-btn" type="button" aria-label="Go back">
+                            <i class="fas fa-arrow-left"></i>
+                            <span class="back-text">Back</span>
+                        </button>
+                        <h1 id="pageTitle">Dashboard</h1>
+                    </div>
+                    <div class="header-actions">
+                        {% if user %}
+                        <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden-form">
+                            {% csrf_token %}
+                        </form>
+                        <button id="logoutBtn" class="btn logout-btn" type="button" aria-label="Logout">
+                            <i class="fas fa-right-from-bracket"></i>
+                            <span class="logout-text">Logout</span>
+                        </button>
+                        {% endif %}
+                    </div>
                 </div>
                 <div class="breadcrumb">
                     <span id="breadcrumbPath">Home / Dashboard</span>
@@ -143,6 +146,25 @@
     </div>
 
     <script>
+        // Toast message logic
+        function showToast(message, type="info", duration=1000) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast-message show ' + type;
+            setTimeout(() => {
+                toast.className = 'toast-message';
+            }, duration);
+        }
+
+        // Show Django messages as toast on page load
+        document.addEventListener("DOMContentLoaded", function() {
+            {% if messages %}
+                {% for message in messages %}
+                    showToast("{{ message|escapejs }}", "{{ message.tags }}", 1000);
+                {% endfor %}
+            {% endif %}
+        });
+
         // Theme Toggle Functionality
         const themeToggle = document.getElementById('themeToggle');
         const themeIcon = document.getElementById('themeIcon');
@@ -250,6 +272,18 @@
                 window.history.back();
             } else {
                 window.location.href = "{% url 'home' %}";
+            }
+        });
+
+        // Logout button submits hidden POST form; falls back to GET if form missing
+        const logoutBtn = document.getElementById('logoutBtn');
+        logoutBtn?.addEventListener('click', () => {
+            showToast("Logging out...", "info", 1000);
+            const form = document.getElementById('logoutForm');
+            if (form) {
+                setTimeout(() => form.submit(), 1000);
+            } else {
+                setTimeout(() => window.location.href = "{% url 'logout' %}", 1000);
             }
         });
 

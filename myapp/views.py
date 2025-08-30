@@ -1,6 +1,6 @@
 from django.shortcuts import render , redirect
 from django.contrib import messages
-from .models import User
+from .models import User,Student
 
 def base(request):
     return render(request, 'base/base.html')
@@ -8,7 +8,7 @@ def base(request):
 def home(request, id=None):
     if id:
         user = User.objects.get(id=id)
-        return render(request, 'home.html', {'id': id})
+        return render(request, 'home.html', {'user': user})
     return render(request, 'home.html')
 
 def login(request):
@@ -32,28 +32,53 @@ def login(request):
                 messages.success(request, 'Login successful!')
                 return redirect('dashboard_with_id', id=id)
             else:
-                return render(request, 'login.html', {'error': 'Invalid username or password'})
+                messages.error(request, 'Invalid username or password')
         except User.DoesNotExist:
-            return render(request, 'login.html', {'error': 'Invalid username or password'})
+            messages.error(request, 'Invalid username or password')
+            return render(request, 'login.html')
 
     return render(request, 'login.html')
 
 def dashboard(request, id=None):
     if id:
         user = User.objects.get(id=id)
-        return render(request, 'dashboard.html', {'id': id})
+        return render(request, 'dashboard.html', {'user': user})
     return render(request, 'dashboard.html')
 
 def student(request, id=None):
-    if id:
-        user = User.objects.get(id=id)
-        return render(request, 'student.html', {'id': id})
-    return render(request, 'student.html')
+    years = [2, 3, 4]
+    students = Student.objects.all() 
+
+    if request.method == 'POST':
+        year = request.POST.get('year')
+        section = request.POST.get('section')
+
+        if year and section: 
+            students = Student.objects.filter(year=year, class_section=section)
+
+        user_id = request.session.get('id')
+        user = User.objects.get(id=user_id) if user_id else None
+
+        return render(request, 'student.html', {
+            'user': user,
+            'students': students,
+            'years': years
+        })
+
+    # GET Request – just load the page with years and user
+    user_id = request.session.get('id')
+    user = User.objects.get(id=user_id) if user_id else None
+
+    return render(request, 'student.html', {
+        'user': user,
+        'students': students,  # None initially
+        'years': years
+    })
 
 def manage(request, id=None):
     if id:
         user = User.objects.get(id=id)
-        return render(request, 'manage.html', {'id': id})
+        return render(request, 'manage.html', {'user': user})
     return render(request, 'manage.html')
 
 def logout(request):

@@ -3,6 +3,137 @@
 {% block title %}Student Management{% endblock %}
 
 {% block content %}
-<h2>Student Management</h2>
-<p>Here you can manage student records.</p>
+<div class="student-page" id="studentPage">
+    <h2 class="page-heading">Student Management</h2>
+    <p class="page-subtitle">Choose a year and section to view student records.</p>
+
+    <!-- Year & Section Controls -->
+    <form method="post" id="studentFilterForm" action="">
+        {% csrf_token %}
+        <div class="student-controls">
+            {% for year in years %}
+            <div class="btn-group">
+                <button class="btn year-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>{{ year }} Year</span>
+                    <i class="fas fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="{{ year }} Year Sections">
+                    <li>
+                        <button class="dropdown-item select-section" type="button"
+                                data-year="{{ year }}" data-section="A">Section A</button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item select-section" type="button"
+                                data-year="{{ year }}" data-section="B">Section B</button>
+                    </li>
+                </ul>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn submit-btn">
+                <i class="fas fa-users"></i>
+                <span>Load Students</span>
+            </button>
+        </div>
+
+        <!-- Hidden Inputs for Year & Section -->
+        <input type="hidden" name="year" id="selectedYear" value="{{ selected_year|default:'' }}">
+        <input type="hidden" name="section" id="selectedSection" value="{{ selected_section|default:'' }}">
+
+        <!-- Selection Info -->
+        <div class="selection-info">
+            <span id="currentSelection">
+                {% if selected_year and selected_section %}
+                    Selected: {{ selected_year }} Year - Section {{ selected_section }}
+                {% else %}
+                    Select a year and section.
+                {% endif %}
+            </span>
+        </div>
+    </form>
+
+    <!-- Students Table -->
+    <div class="table-wrapper {% if not students %}empty{% endif %}">
+        {% if students %}
+        <table class="table students-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Roll Number</th>
+                    <th>Name</th>
+                    <th>Course</th>
+                    <th>Year</th>
+                    <th>Class Section</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for student in students %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ student.roll_number }}</td>
+                    <td>{{ student.name }}</td>
+                    <td>{{ student.course }}</td>
+                    <td>{{ student.year }}</td>
+                    <td>{{ student.class_section }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="placeholder">No data selected.</div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const groups = document.querySelectorAll(".btn-group");
+    const yearInput = document.getElementById("selectedYear");
+    const sectionInput = document.getElementById("selectedSection");
+    const selectionInfo = document.getElementById("currentSelection");
+
+    // Toggle dropdown open/close
+    groups.forEach(group => {
+        const trigger = group.querySelector(".year-btn");
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = group.classList.toggle("open");
+            trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            // Close other groups
+            document.querySelectorAll(".btn-group").forEach(g => {
+                if (g !== group) {
+                    g.classList.remove("open");
+                    g.querySelector(".year-btn")?.setAttribute("aria-expanded", "false");
+                }
+            });
+        });
+    });
+
+    // Close when clicking outside
+    document.addEventListener("click", () => {
+        document.querySelectorAll(".btn-group").forEach(g => {
+            g.classList.remove("open");
+            g.querySelector(".year-btn")?.setAttribute("aria-expanded", "false");
+        });
+    });
+
+    // Select section
+    document.querySelectorAll(".select-section").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const year = btn.getAttribute("data-year");
+            const section = btn.getAttribute("data-section");
+            yearInput.value = year;
+            sectionInput.value = section;
+            selectionInfo.textContent = `Selected: ${year} Year - Section ${section}`;
+            // Close all dropdowns after selection
+            document.querySelectorAll(".btn-group").forEach(g => {
+                g.classList.remove("open");
+                g.querySelector(".year-btn")?.setAttribute("aria-expanded", "false");
+            });
+            if (typeof showToast === "function") showToast("Selection updated", "success", 1000);
+        });
+    });
+});
+</script>
 {% endblock %}
