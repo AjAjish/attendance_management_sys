@@ -53,12 +53,12 @@
                         <span class="nav-text">Dashboard</span>
                     </a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a href="{% url 'manage' %}" class="nav-link" data-page="manage">
                         <i class="fas fa-cogs"></i>
                         <span class="nav-text">Manage</span>
                     </a>
-                </li>
+                </li> -->
                 <li class="nav-item">
                     <a href="{% url 'student' %}" class="nav-link" data-page="students">
                         <i class="fas fa-users"></i>
@@ -123,7 +123,7 @@
                         <h1 id="pageTitle">Dashboard</h1>
                     </div>
                     <div class="header-actions">
-                        {% if user %}
+                        {% if user.id %}
                         <form id="logoutForm" method="post" action="{% url 'logout' %}" class="hidden-form">
                             {% csrf_token %}
                         </form>

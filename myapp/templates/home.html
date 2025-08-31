@@ -1,0 +1,25 @@
+{% extends "base/base.html" %}
+{% block title %}Home | EduPortal{% endblock %}
+{% block content %}
+<div class="home-welcome-container">
+    <div class="home-welcome-card">
+        <h2>Welcome, {{ username }}!</h2>
+        <p>Glad to see you at <span class="eduportal-brand">EduPortal</span>. Use the quick links below to get started:</p>
+        <div class="home-quick-links">
+            {% if not user.id %}
+            <a href="{% url 'login' %}" class="btn btn-primary home-link">
+                <i class="fas fa-sign-in-alt"></i> Login
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn btn-secondary home-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            {% endif %}
+            {% if user.id %}
+            <a href="{% url 'dashboard' %}" class="btn btn-primary home-link">
+                <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,8 +1,336 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Manage Students{% endblock %}
+{% block title %}Student Management{% endblock %}
 
 {% block content %}
-<h2>Manage Students</h2>
-<p>Here you can manage student records.</p>
+<div class="student-page" id="studentPage">
+    <h2 class="page-heading">Student Management</h2>
+    <p class="page-subtitle">Choose a year and section to view student records.</p>
+
+    <!-- Year & Section Controls -->
+    <form method="post" id="studentFilterForm" action="">
+        {% csrf_token %}
+        <div class="student-controls">
+            {% for year in years %}
+            <div class="btn-group">
+                <button class="btn year-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                    <span>{{ year }} Year</span>
+                    <i class="fas fa-caret-down"></i>
+                </button>
+                <ul class="dropdown-menu" role="menu" aria-label="{{ year }} Year Sections">
+                    <li>
+                        <button class="dropdown-item select-section" type="button"
+                                data-year="{{ year }}" data-section="A">Section A</button>
+                    </li>
+                    <li>
+                        <button class="dropdown-item select-section" type="button"
+                                data-year="{{ year }}" data-section="B">Section B</button>
+                    </li>
+                </ul>
+            </div>
+            {% endfor %}
+
+            <button type="submit" class="btn submit-btn">
+                <i class="fas fa-users"></i>
+                <span>Load Students</span>
+            </button>
+        </div>
+
+        <!-- Hidden Inputs for Year & Section -->
+        <input type="hidden" name="year" id="selectedYear" value="{{ selected_year|default:'' }}">
+        <input type="hidden" name="section" id="selectedSection" value="{{ selected_section|default:'' }}">
+        <!-- Attendance payload will be filled on confirm -->
+        <input type="hidden" name="attendance_payload" id="attendancePayload" value="">
+
+        <!-- Selection Info -->
+        <div class="selection-info">
+            <span id="currentSelection">
+                {% if selected_year and selected_section %}
+                    Selected: {{ selected_year }} Year - Section {{ selected_section }}
+                {% else %}
+                    Select a year and section.
+                {% endif %}
+            </span>
+        </div>
+
+        <!-- Actions Bar -->
+        <div class="actions-bar">
+            <button type="button" id="openAttendanceModalBtn" class="btn primary">
+                <i class="fas fa-clipboard-check"></i>
+                <span>Submit Attendance</span>
+            </button>
+        </div>
+
+        <!-- Students Table -->
+        <div class="table-wrapper {% if not students %}empty{% endif %}">
+            {% if students %}
+            <table class="table students-table" id="studentsTable">
+                <thead>
+                    <tr>
+                        <th class="select-col">
+                            <label class="sr-only" for="selectAll">Select all</label>
+                            <input type="checkbox" id="selectAll">
+                        </th>
+                        <th>#</th>
+                        <th>Roll Number</th>
+                        <th>Name</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Class Section</th>
+                        <th>Attendance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr data-roll="{{ student.roll_number }}" data-name="{{ student.name }}" data-status="">
+                        <td class="select-col">
+                            <input type="checkbox" class="row-select" aria-label="Select {{ student.name }}">
+                        </td>
+                        <td>{{ forloop.counter }}</td>
+                        <td class="roll-cell">{{ student.roll_number }}</td>
+                        <td class="name-cell">{{ student.name }}</td>
+                        <td>{{ student.course }}</td>
+                        <td>{{ student.year }}</td>
+                        <td>{{ student.class_section }}</td>
+                        <td class="attend-actions">
+                            <button type="button" class="btn-attend present" data-type="present" aria-pressed="false" title="Mark Present">
+                                <i class="fas fa-check"></i>
+                                <span class="label">Present</span>
+                            </button>
+                            <button type="button" class="btn-attend absent" data-type="absent" aria-pressed="false" title="Mark Absent">
+                                <i class="fas fa-times"></i>
+                                <span class="label">Absent</span>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="placeholder">No data selected.</div>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Attendance Review Modal -->
+<div class="modal-overlay" id="attendanceModal" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="attendanceModalTitle" aria-describedby="attendanceModalDesc">
+        <div class="modal-header">
+            <h3 id="attendanceModalTitle">Review Attendance</h3>
+            <button type="button" class="modal-close" id="modalCloseBtn" aria-label="Close">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div id="attendanceModalDesc" class="modal-body">
+            <div class="summary">
+                <span class="summary-item"><span class="dot present-dot"></span> Present: <strong id="countPresent">0</strong></span>
+                <span class="summary-item"><span class="dot absent-dot"></span> Absent: <strong id="countAbsent">0</strong></span>
+                <span class="summary-item"><span class="dot neutral-dot"></span> Total: <strong id="countTotal">0</strong></span>
+            </div>
+            <div class="modal-table-wrapper">
+                <table class="table compact">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Roll Number</th>
+                            <th>Name</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceReviewBody">
+                        <!-- Filled dynamically -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button type="button" class="btn ghost" id="modalCancelBtn">Cancel</button>
+            <button type="button" class="btn primary" id="modalConfirmBtn">
+                <i class="fas fa-paper-plane"></i>
+                <span>Confirm & Submit</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const groups = document.querySelectorAll(".btn-group");
+    const yearInput = document.getElementById("selectedYear");
+    const sectionInput = document.getElementById("selectedSection");
+    const selectionInfo = document.getElementById("currentSelection");
+
+    // Dropdown open/close
+    groups.forEach(group => {
+        const trigger = group.querySelector(".year-btn");
+        trigger.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const isOpen = group.classList.toggle("open");
+            trigger.setAttribute("aria-expanded", isOpen ? "true" : "false");
+            document.querySelectorAll(".btn-group").forEach(g => {
+                if (g !== group) { g.classList.remove("open"); g.querySelector(".year-btn")?.setAttribute("aria-expanded","false"); }
+            });
+        });
+    });
+    document.addEventListener("click", () => {
+        document.querySelectorAll(".btn-group").forEach(g => { g.classList.remove("open"); g.querySelector(".year-btn")?.setAttribute("aria-expanded","false"); });
+    });
+
+    // Section pick updates hidden inputs
+    document.querySelectorAll(".select-section").forEach(btn => {
+        btn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const year = btn.getAttribute("data-year");
+            const section = btn.getAttribute("data-section");
+            yearInput.value = year;
+            sectionInput.value = section;
+            selectionInfo.textContent = `Selected: ${year} Year - Section ${section}`;
+            document.querySelectorAll(".btn-group").forEach(g => { g.classList.remove("open"); g.querySelector(".year-btn")?.setAttribute("aria-expanded","false"); });
+            if (typeof showToast === "function") showToast("Selection updated", "success", 1000);
+        });
+    });
+
+    // Attendance present/absent toggle per row
+    document.querySelectorAll(".attend-actions").forEach(cell => {
+        const row = cell.closest("tr");
+        const presentBtn = cell.querySelector(".btn-attend.present");
+        const absentBtn = cell.querySelector(".btn-attend.absent");
+        const roll = row.querySelector(".roll-cell")?.textContent?.trim() || "";
+
+        function setState(type) {
+            // Toggle buttons
+            presentBtn.classList.toggle("active", type === "present");
+            absentBtn.classList.toggle("active", type === "absent");
+            presentBtn.setAttribute("aria-pressed", type === "present" ? "true" : "false");
+            absentBtn.setAttribute("aria-pressed", type === "absent" ? "true" : "false");
+            // Row highlight + dataset
+            row.classList.remove("is-present", "is-absent");
+            row.dataset.status = type;
+            row.classList.add(type === "present" ? "is-present" : "is-absent");
+
+            if (typeof showToast === "function") {
+                showToast(`${roll || 'Student'} marked ${type === 'present' ? 'Present' : 'Absent'}`, type === 'present' ? 'success' : 'error', 800);
+            }
+        }
+        presentBtn?.addEventListener("click", (e) => { e.stopPropagation(); setState("present"); });
+        absentBtn?.addEventListener("click", (e) => { e.stopPropagation(); setState("absent"); });
+    });
+
+    // Select-all and row selection
+    const tableEl = document.getElementById("studentsTable");
+    const selectAll = document.getElementById("selectAll");
+    function updateSelectAll() {
+        if (!tableEl) return;
+        const checks = tableEl.querySelectorAll(".row-select");
+        const checked = tableEl.querySelectorAll(".row-select:checked");
+        if (checks.length === 0) { selectAll.checked = false; selectAll.indeterminate = false; return; }
+        selectAll.checked = checked.length === checks.length;
+        selectAll.indeterminate = checked.length > 0 && checked.length < checks.length;
+    }
+    selectAll?.addEventListener("change", () => {
+        tableEl.querySelectorAll(".row-select").forEach(cb => { cb.checked = selectAll.checked; });
+        updateSelectAll();
+    });
+    tableEl?.querySelectorAll(".row-select").forEach(cb => cb.addEventListener("change", updateSelectAll));
+
+    // Attendance Modal
+    const modal = document.getElementById("attendanceModal");
+    const openModalBtn = document.getElementById("openAttendanceModalBtn");
+    const modalCloseBtn = document.getElementById("modalCloseBtn");
+    const modalCancelBtn = document.getElementById("modalCancelBtn");
+    const modalConfirmBtn = document.getElementById("modalConfirmBtn");
+    const reviewBody = document.getElementById("attendanceReviewBody");
+    const countPresent = document.getElementById("countPresent");
+    const countAbsent = document.getElementById("countAbsent");
+    const countTotal = document.getElementById("countTotal");
+    const payloadInput = document.getElementById("attendancePayload");
+    const form = document.getElementById("studentFilterForm");
+
+    function openModal(attList) {
+        // Fill summary
+        const nPresent = attList.filter(a => a.status === "present").length;
+        const nAbsent = attList.filter(a => a.status === "absent").length;
+        countPresent.textContent = nPresent;
+        countAbsent.textContent = nAbsent;
+        countTotal.textContent = attList.length;
+
+        // Fill rows
+        reviewBody.innerHTML = attList.map((a, i) => `
+            <tr>
+                <td>${i + 1}</td>
+                <td>${escapeHtml(a.roll)}</td>
+                <td>${escapeHtml(a.name)}</td>
+                <td><span class="badge ${a.status === 'present' ? 'badge-success' : 'badge-danger'}">
+                    ${a.status === 'present' ? 'Present' : 'Absent'}
+                </span></td>
+            </tr>
+        `).join('');
+
+        modal.classList.add("show");
+        modal.setAttribute("aria-hidden", "false");
+        document.body.classList.add("no-scroll");
+    }
+    function closeModal() {
+        modal.classList.remove("show");
+        modal.setAttribute("aria-hidden", "true");
+        document.body.classList.remove("no-scroll");
+    }
+    modalCloseBtn?.addEventListener("click", closeModal);
+    modalCancelBtn?.addEventListener("click", closeModal);
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) closeModal(); // click backdrop
+    });
+
+    openModalBtn?.addEventListener("click", () => {
+        if (!tableEl) {
+            if (typeof showToast === "function") showToast("No students to submit.", "warning", 1200);
+            return;
+        }
+        // Gather selected rows
+        const selectedRows = Array.from(tableEl.querySelectorAll("tbody tr")).filter(tr => tr.querySelector(".row-select")?.checked);
+        if (selectedRows.length === 0) {
+            if (typeof showToast === "function") showToast("Select at least one student.", "warning", 1200);
+            return;
+        }
+        // Ensure all selected have status
+        const missing = selectedRows.filter(tr => !tr.dataset.status);
+        if (missing.length > 0) {
+            if (typeof showToast === "function") showToast("Set Present or Absent for all selected students.", "error", 1400);
+            return;
+        }
+        // Build temp data
+        const tempData = selectedRows.map(tr => ({
+            roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
+            name: tr.dataset.name || tr.querySelector(".name-cell")?.textContent?.trim() || "",
+            status: tr.dataset.status
+        }));
+        // Attach for review
+        openModal(tempData);
+    });
+
+    modalConfirmBtn?.addEventListener("click", () => {
+        // Build final payload again from currently selected rows (in case user changed anything)
+        const selectedRows = Array.from(tableEl.querySelectorAll("tbody tr")).filter(tr => tr.querySelector(".row-select")?.checked && tr.dataset.status);
+        const payload = {
+            year: yearInput.value || null,
+            section: sectionInput.value || null,
+            items: selectedRows.map(tr => ({
+                roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
+                name: tr.dataset.name || tr.querySelector(".name-cell")?.textContent?.trim() || "",
+                status: tr.dataset.status
+            }))
+        };
+        payloadInput.value = JSON.stringify(payload);
+        closeModal();
+        if (typeof showToast === "function") showToast("Attendance submitted", "success", 1200);
+        // Submit the form to backend if you want to persist
+        // form.submit(); // Uncomment to actually submit to your view
+    });
+
+    function escapeHtml(str) {
+        return String(str).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    }
+});
+</script>
 {% endblock %}

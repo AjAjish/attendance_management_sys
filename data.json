@@ -1,0 +1,352 @@
+[
+  {
+    "name": "John Doe",
+    "roll_number": "CSE2001",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Jane Smith",
+    "roll_number": "CSE2002",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Michael Brown",
+    "roll_number": "CSE2003",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Emily Davis",
+    "roll_number": "CSE2004",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Daniel Wilson",
+    "roll_number": "CSE2005",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Sophia Johnson",
+    "roll_number": "CSE2006",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Liam Anderson",
+    "roll_number": "CSE2007",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Olivia Thomas",
+    "roll_number": "CSE2008",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Noah Lee",
+    "roll_number": "CSE2009",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "Ava Harris",
+    "roll_number": "CSE2010",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "A"
+  },
+  {
+    "name": "William Clark",
+    "roll_number": "CSE2011",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Isabella Lewis",
+    "roll_number": "CSE2012",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "James Walker",
+    "roll_number": "CSE2013",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Mia Young",
+    "roll_number": "CSE2014",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Benjamin Hall",
+    "roll_number": "CSE2015",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Charlotte Allen",
+    "roll_number": "CSE2016",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Elijah Scott",
+    "roll_number": "CSE2017",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Amelia Adams",
+    "roll_number": "CSE2018",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Lucas Perez",
+    "roll_number": "CSE2019",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Harper King",
+    "roll_number": "CSE2020",
+    "course": "BE Computer Science and Engineering",
+    "year": 2,
+    "class_section": "B"
+  },
+  {
+    "name": "Henry Rivera",
+    "roll_number": "CSE3001",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Evelyn Wright",
+    "roll_number": "CSE3002",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Alexander Lopez",
+    "roll_number": "CSE3003",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Scarlett Hill",
+    "roll_number": "CSE3004",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Jack Green",
+    "roll_number": "CSE3005",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Grace Baker",
+    "roll_number": "CSE3006",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Leo Nelson",
+    "roll_number": "CSE3007",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Ella Carter",
+    "roll_number": "CSE3008",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Sebastian Mitchell",
+    "roll_number": "CSE3009",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "Aria Roberts",
+    "roll_number": "CSE3010",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "A"
+  },
+  {
+    "name": "David Turner",
+    "roll_number": "CSE3011",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Sofia Phillips",
+    "roll_number": "CSE3012",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Matthew Campbell",
+    "roll_number": "CSE3013",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Chloe Parker",
+    "roll_number": "CSE3014",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Joseph Evans",
+    "roll_number": "CSE3015",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Lily Edwards",
+    "roll_number": "CSE3016",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Samuel Collins",
+    "roll_number": "CSE3017",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Victoria Stewart",
+    "roll_number": "CSE3018",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Owen Morris",
+    "roll_number": "CSE3019",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Hazel Rogers",
+    "roll_number": "CSE3020",
+    "course": "BE Computer Science and Engineering",
+    "year": 3,
+    "class_section": "B"
+  },
+  {
+    "name": "Ethan Bailey",
+    "roll_number": "CSE4001",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Abigail Rivera",
+    "roll_number": "CSE4002",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Logan Martinez",
+    "roll_number": "CSE4003",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Madison Flores",
+    "roll_number": "CSE4004",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Aiden Hughes",
+    "roll_number": "CSE4005",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Ella Jenkins",
+    "roll_number": "CSE4006",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Jackson Perry",
+    "roll_number": "CSE4007",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Penelope Sanders",
+    "roll_number": "CSE4008",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Mason Foster",
+    "roll_number": "CSE4009",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  },
+  {
+    "name": "Zoe Powell",
+    "roll_number": "CSE4010",
+    "course": "BE Computer Science and Engineering",
+    "year": 4,
+    "class_section": "A"
+  }
+]
