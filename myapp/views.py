@@ -1,8 +1,10 @@
 from django.shortcuts import render , redirect
 from django.contrib import messages
-from .models import User,Student
+from .models import User,Student, AttendanceRecord
 import json
 from datetime import datetime
+from django.http import JsonResponse
+
 
 def base(request):
     return render(request, 'base/base.html')
@@ -82,60 +84,15 @@ def manage(request, id=None):
     students = None
 
     if request.method == 'POST':
-        # Extract year, section, and attendance JSON payload
+        # Extract year and section for filtering
         year = request.POST.get('year')
         section = request.POST.get('section')
-        attendance_json = request.POST.get('attendance_payload')  # Hidden field with JSON
 
-        if attendance_json:
-            try:
-                attendance_data = json.loads(attendance_json)
-
-                date = attendance_data.get("date")
-                year = attendance_data.get("year")
-                section = attendance_data.get("section")
-                items = attendance_data.get("items", [])
-
-                for item in items:
-                    roll = item.get("roll")
-                    status = item.get("status")
-
-                    try:
-                        student = Student.objects.get(roll_number=roll, year=year, class_section=section)
-                        # Get or initialize the attendance_record
-                        record = student.attendance_record or {}
-
-                        # Ensure date key exists
-                        if date not in record:
-                            record[date] = {}
-
-                        # Update attendance for that roll
-                        record[date][roll] = status
-
-                        student.attendance_record = record
-                        student.attendance = status  # Update current attendance status
-                        student.save()
-
-                    except Student.DoesNotExist:
-                        continue  # Skip missing students gracefully
-
-            except json.JSONDecodeError:
-                pass  # Handle invalid JSON silently or log error
-
-        # After marking attendance, fetch students again for UI refresh
+        # After filtering, fetch students for UI display
         if year and section:
             students = Student.objects.filter(year=year, class_section=section)
 
-        user_id = request.session.get('id')
-        user = User.objects.get(id=user_id) if user_id else None
-
-        return render(request, 'manage.html', {
-            'user': user,
-            'students': students,
-            'years': years
-        })
-
-    # GET Request – just load the page
+    # Get user from session for rendering
     user_id = request.session.get('id')
     user = User.objects.get(id=user_id) if user_id else None
 
@@ -145,8 +102,28 @@ def manage(request, id=None):
         'years': years
     })
 
+
 def logout(request):
     # Clear the session data
     request.session.flush()
     messages.success(request, 'Logout successful!')
     return redirect('home')
+
+
+def submit_attendance(request):
+    if request.method == "POST":
+        try:
+            attendance_data = json.loads(request.body.decode())
+            # process attendance_data ...
+            print(f"Attendance Data: {attendance_data}")
+            today = datetime.now().date()
+            AttendanceRecord.objects.create(
+                date=today,
+                attendance_record=attendance_data
+            )
+            return JsonResponse({"success": True})
+        except Exception as e:
+            print(f"Error processing attendance data: {str(e)}")
+            return JsonResponse({"success": False, "error": str(e)})
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+

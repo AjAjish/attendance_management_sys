@@ -155,7 +155,7 @@
 </div>
 
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", function () {
     const groups = document.querySelectorAll(".btn-group");
     const yearInput = document.getElementById("selectedYear");
     const sectionInput = document.getElementById("selectedSection");
@@ -245,7 +245,6 @@ document.addEventListener("DOMContentLoaded", function () {
     const countAbsent = document.getElementById("countAbsent");
     const countTotal = document.getElementById("countTotal");
     const payloadInput = document.getElementById("attendancePayload");
-    const form = document.getElementById("studentFilterForm");
 
     function openModal(attList) {
         // Fill summary
@@ -309,23 +308,50 @@ document.addEventListener("DOMContentLoaded", function () {
         openModal(tempData);
     });
 
+    // Changed: send attendance to backend via fetch to submit_attendance
     modalConfirmBtn?.addEventListener("click", () => {
-        // Build final payload again from currently selected rows (in case user changed anything)
-        const selectedRows = Array.from(tableEl.querySelectorAll("tbody tr")).filter(tr => tr.querySelector(".row-select")?.checked && tr.dataset.status);
+        // Build final payload from selected rows
+        const selectedRows = Array.from(tableEl.querySelectorAll("tbody tr")).filter(
+            tr => tr.querySelector(".row-select")?.checked && tr.dataset.status
+        );
+        const yearValue = yearInput.value;
+        const sectionValue = sectionInput.value;
+        if (!yearValue || !sectionValue) {
+            if (typeof showToast === "function") showToast("Year and Section not set.", "error", 1200);
+            return;
+        }
         const payload = {
-            year: yearInput.value || null,
-            section: sectionInput.value || null,
+            year: yearValue,
+            section: sectionValue,
             items: selectedRows.map(tr => ({
                 roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
                 name: tr.dataset.name || tr.querySelector(".name-cell")?.textContent?.trim() || "",
                 status: tr.dataset.status
             }))
         };
-        payloadInput.value = JSON.stringify(payload);
         closeModal();
-        if (typeof showToast === "function") showToast("Attendance submitted", "success", 1200);
-        // Submit the form to backend if you want to persist
-        // form.submit(); // Uncomment to actually submit to your view
+
+        // AJAX POST to Django backend
+        fetch("{% url 'submit_attendance' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": document.querySelector('input[name="csrfmiddlewaretoken"]').value,
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (typeof showToast === "function") showToast("Attendance submitted!", "success", 1200);
+            } else {
+                if (typeof showToast === "function") showToast("Error: " + (data.error || "Unknown error"), "error", 1400);
+            }
+        })
+        .catch(() => {
+            if (typeof showToast === "function") showToast("Network Error", "error", 1400);
+        });
     });
 
     function escapeHtml(str) {

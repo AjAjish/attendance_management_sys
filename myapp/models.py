@@ -7,13 +7,6 @@ class Student(models.Model):
     course = models.CharField(default="BE Computer Science and Engineering",max_length=50)
     year = models.IntegerField(null=True, blank=True)
     class_section = models.CharField(max_length=10, null=True, blank=True)
-    attendance = models.CharField(
-        choices=[('Present', 'Present'), ('Absent', 'Absent')],
-        max_length=10,
-        default='Absent'
-    )
-
-    attendance_record = models.JSONField(default=dict, blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} ({self.roll_number}) - {self.class_section}, Year {self.year}, Course: {self.course}"
@@ -28,4 +21,7 @@ class User(models.Model):
 
     def __str__(self):
         return f"{self.id} - {self.username} ({self.email}) - {self.password}"
-  
+
+class AttendanceRecord(models.Model):
+    date = models.DateField()
+    attendance_record = models.JSONField(default=dict, blank=True)
