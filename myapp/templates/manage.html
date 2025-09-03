@@ -332,7 +332,7 @@
         closeModal();
 
         // AJAX POST to Django backend
-        fetch("{% url 'submit_attendance' %}", {
+        fetch("{% url 'submit_attendance' id=user.id %}", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",

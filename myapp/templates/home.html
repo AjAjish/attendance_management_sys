@@ -4,7 +4,7 @@
 <div class="home-welcome-container">
     <div class="home-welcome-card">
         <h2>Welcome, {{ username }}!</h2>
-        <p>Glad to see you at <span class="eduportal-brand">EduPortal</span>. Use the quick links below to get started:</p>
+        <p>Glad to see you at <span class="eduportal-brand">SREC CSE Attendance System</span>. Use the quick links below to get started:</p>
         <div class="home-quick-links">
             {% if not user.id %}
             <a href="{% url 'login' %}" class="btn btn-primary home-link">
@@ -15,8 +15,11 @@
             </a>
             {% endif %}
             {% if user.id %}
-            <a href="{% url 'dashboard' %}" class="btn btn-primary home-link">
+            <a href="{% url 'dashboard_with_id' id=user.id %}" class="btn btn-primary home-link">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
+            </a>
+            <a href="{% url 'manage_with_id' id=user.id %}" class="btn btn-secondary home-link">
+                <i class="fas fa-users-cog"></i> Attendance Management
             </a>
             {% endif %}
         </div>

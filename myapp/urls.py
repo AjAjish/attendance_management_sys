@@ -15,7 +15,7 @@ urlpatterns = [
     path('manage/', views.manage, name='manage'),
     path('manage/<uuid:id>/', views.manage, name='manage_with_id'),
     path('logout/', views.logout, name='logout'),
-    path('submit_attendance/', views.submit_attendance, name='submit_attendance'),
+    path('submit_attendance/<uuid:id>/', views.submit_attendance, name='submit_attendance'),
 ]
 
 if settings.DEBUG:

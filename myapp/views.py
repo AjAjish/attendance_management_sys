@@ -87,6 +87,7 @@ def manage(request, id=None):
         # Extract year and section for filtering
         year = request.POST.get('year')
         section = request.POST.get('section')
+        print(f"Filtering students for Year: {year}, Section: {section}")
 
         # After filtering, fetch students for UI display
         if year and section:
@@ -110,18 +111,40 @@ def logout(request):
     return redirect('home')
 
 
-def submit_attendance(request):
+def submit_attendance(request,id=None):
     if request.method == "POST":
         try:
+            user = User.objects.get(id=id)
             attendance_data = json.loads(request.body.decode())
             # process attendance_data ...
             print(f"Attendance Data: {attendance_data}")
             today = datetime.now().date()
-            AttendanceRecord.objects.create(
-                date=today,
-                attendance_record=attendance_data
-            )
+            year = attendance_data.get('year')
+            section = attendance_data.get('section')
+            items = attendance_data.get('items', [])
+            username = user.username
+            
+            attendance_dict = {}
+            attendance_dict={
+                "year":year,
+                "section":section,
+                "attendance_taken_by": username,
+                str(today) :{
+                    "AttendanceData": items
+                }
+            }
+            if not AttendanceRecord.objects.filter(attendance_record=attendance_dict).exists():
+                AttendanceRecord.objects.create(
+                    attendance_record=attendance_dict
+                )
+            else:
+                messages.error(request, 'Attendance for today has already been submitted!')
+                return JsonResponse({"success": False, "error": "Attendance for today already submitted"})
+            messages.success(request, 'Attendance submitted successfully!')
             return JsonResponse({"success": True})
+        except User.DoesNotExist:
+            messages.error(request, 'User not found!')
+            return JsonResponse({"success": False, "error": "User not found"}, status=404)
         except Exception as e:
             print(f"Error processing attendance data: {str(e)}")
             return JsonResponse({"success": False, "error": str(e)})
