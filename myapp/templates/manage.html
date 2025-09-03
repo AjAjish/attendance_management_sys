@@ -322,7 +322,7 @@
         }
         const payload = {
             year: yearValue,
-            section: sectionValue,
+            section: sectionValue  ,
             items: selectedRows.map(tr => ({
                 roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
                 name: tr.dataset.name || tr.querySelector(".name-cell")?.textContent?.trim() || "",

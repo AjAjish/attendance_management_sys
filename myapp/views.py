@@ -44,10 +44,20 @@ def login(request):
     return render(request, 'login.html')
 
 def dashboard(request, id=None):
-    if id:
-        user = User.objects.get(id=id)
-        return render(request, 'dashboard.html', {'user': user})
-    return render(request, 'dashboard.html')
+    """
+    Render the attendance dashboard with virtual and graphical representations.
+    Reads attendance JSON from AttendanceRecord.attendance_record (JSONField).
+    """
+    records_qs = AttendanceRecord.objects.all()
+    # Ensure we pass dict objects, not None or empty string
+    records = []
+    for rec in records_qs:
+        if rec.attendance_record:
+            records.append(rec.attendance_record)
+    # If you want to filter by id, you can do:
+    # if id is not None:
+    #     records = [rec.attendance_record for rec in records_qs if rec.id == id]
+    return render(request, "dashboard.html", {"records": records})
 
 def student(request, id=None):
     years = [2, 3, 4]

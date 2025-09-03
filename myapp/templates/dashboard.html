@@ -1,8 +1,587 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
-{% block title %}Dashboard{% endblock %}
+{% block title %}Attendance Dashboard{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+{% endblock %}
 
 {% block content %}
-<h2>Dashboard</h2>
-<p>Welcome to the student management dashboard.</p>
+<div class="dashboard-page" id="dashboardPage">
+    <div class="header-bar">
+        <div class="header-left">
+            <a href="{% url 'home' %}" class="back-btn">
+                <i class="fas fa-arrow-left"></i>
+                <span class="back-text">Back</span>
+            </a>
+            <div>
+                <h2 class="page-heading">Attendance Dashboard</h2>
+                <p class="page-subtitle">View all attendance records and analytics.</p>
+            </div>
+        </div>
+        <div class="header-actions">
+            <span class="current-user">
+                <i class="fas fa-user-circle"></i>
+                <span>{{ user.username|default:"AjAjish" }}</span>
+            </span>
+            <span class="current-date">
+                <i class="fas fa-calendar-alt"></i>
+                <span id="currentDateTime">2025-09-03 15:29:13</span>
+            </span>
+        </div>
+    </div>
+
+    <!-- Dashboard Statistics -->
+    {% if records %}
+    <div class="attendance-summary">
+        <div class="summary-card total">
+            <h3 id="totalRecords">{{ records|length }}</h3>
+            <p>Total Sessions</p>
+            <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="summary-card present">
+            <h3 id="totalPresent">-</h3>
+            <p>Total Present</p>
+            <i class="fas fa-user-check"></i>
+        </div>
+        <div class="summary-card absent">
+            <h3 id="totalAbsent">-</h3>
+            <p>Total Absent</p>
+            <i class="fas fa-user-times"></i>
+        </div>
+        <div class="summary-card percentage">
+            <h3 id="attendanceRate">-</h3>
+            <p>Attendance Rate</p>
+            <i class="fas fa-chart-line"></i>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Filter Controls -->
+    <div class="filter-controls">
+        <div class="filter-group">
+            <label for="yearFilter">
+                <i class="fas fa-graduation-cap"></i>
+                Filter by Year:
+            </label>
+            <select id="yearFilter" class="filter-select">
+                <option value="all">All Years</option>
+                {% for record in records %}
+                    <option value="{{ record.year }}">Year {{ record.year }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="sectionFilter">
+                <i class="fas fa-users"></i>
+                Filter by Section:
+            </label>
+            <select id="sectionFilter" class="filter-select">
+                <option value="all">All Sections</option>
+                {% for record in records %}
+                    <option value="{{ record.section }}">Section {{ record.section }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="filter-group">
+            <label for="dateFilter">
+                <i class="fas fa-calendar"></i>
+                Filter by Date:
+            </label>
+            <input type="date" id="dateFilter" class="filter-input">
+        </div>
+        <button class="btn-reset-filters" onclick="resetFilters()">
+            <i class="fas fa-undo"></i>
+            Reset Filters
+        </button>
+    </div>
+
+    <!-- Attendance Records -->
+    <div id="attendanceRecords">
+        {% if records %}
+            {% for record in records %}
+                <div class="attendance-card" data-year="{{ record.year }}" data-section="{{ record.section }}">
+                    <div class="card-header">
+                        <div class="attendance-meta">
+                            <span class="meta-year">
+                                <i class="fas fa-graduation-cap"></i>
+                                <strong>Year:</strong> {{ record.year }}
+                            </span>
+                            <span class="meta-section">
+                                <i class="fas fa-users"></i>
+                                <strong>Section:</strong> {{ record.section }}
+                            </span>
+                            <span class="meta-instructor">
+                                <i class="fas fa-user-tie"></i>
+                                <strong>Taken By:</strong> {{ record.attendance_taken_by }}
+                            </span>
+                        </div>
+                        <div class="card-actions">
+                            <button class="btn-expand" onclick="toggleCard(this)" aria-expanded="true">
+                                <i class="fas fa-chevron-up"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="card-content">
+                        {% for date_key, date_val in record.items %}
+                            {% if date_key != 'year' and date_key != 'section' and date_key != 'attendance_taken_by' %}
+                                <div class="attendance-date-block" data-date="{{ date_key }}">
+                                    <div class="date-header">
+                                        <div class="attendance-date">
+                                            <i class="fas fa-calendar-day"></i>
+                                            <strong>Date:</strong> 
+                                            <span class="date-value">{{ date_key }}</span>
+                                            <span class="day-of-week"></span>
+                                        </div>
+                                        <div class="date-stats" data-students="{{ date_val.AttendanceData }}">
+                                            <span class="stat-present">
+                                                <i class="fas fa-check-circle"></i>
+                                                <span class="present-count">0</span> Present
+                                            </span>
+                                            <span class="stat-absent">
+                                                <i class="fas fa-times-circle"></i>
+                                                <span class="absent-count">0</span> Absent
+                                            </span>
+                                            <span class="stat-total">
+                                                <i class="fas fa-users"></i>
+                                                <span class="total-count">{{ date_val.AttendanceData|length }}</span> Total
+                                            </span>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Visual Progress Bar -->
+                                    <div class="attendance-progress">
+                                        <div class="progress-bar">
+                                            <div class="progress-fill present" style="width: 0%"></div>
+                                            <div class="progress-text">0% Present</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="attendance-table-wrapper">
+                                        <table class="table attendance-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>
+                                                        <i class="fas fa-hashtag"></i>
+                                                        #
+                                                    </th>
+                                                    <th>
+                                                        <i class="fas fa-id-card"></i>
+                                                        Roll Number
+                                                    </th>
+                                                    <th>
+                                                        <i class="fas fa-user"></i>
+                                                        Name
+                                                    </th>
+                                                    <th>
+                                                        <i class="fas fa-clipboard-check"></i>
+                                                        Status
+                                                    </th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for student in date_val.AttendanceData %}
+                                                <tr class="{{ student.status }}" data-status="{{ student.status }}">
+                                                    <td>{{ forloop.counter }}</td>
+                                                    <td class="roll-number">{{ student.roll }}</td>
+                                                    <td class="student-name">{{ student.name }}</td>
+                                                    <td>
+                                                        <span class="badge {% if student.status == 'present' %}badge-success{% else %}badge-danger{% endif %}" 
+                                                              data-status="{{ student.status }}">
+                                                            {% if student.status == 'present' %}
+                                                                <i class="fas fa-check"></i>
+                                                            {% else %}
+                                                                <i class="fas fa-times"></i>
+                                                            {% endif %}
+                                                            {{ student.status|title }}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="placeholder">
+                <div class="placeholder-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3>No Attendance Records Found</h3>
+                <p>Start taking attendance to see records and analytics here.</p>
+                <a href="{% url 'student_management' %}" class="btn btn-primary">
+                    <i class="fas fa-plus"></i>
+                    Take Attendance
+                </a>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Export Options -->
+    {% if records %}
+    <div class="export-section">
+        <h3 class="export-title">
+            <i class="fas fa-download"></i>
+            Export Data
+        </h3>
+        <div class="export-buttons">
+            <button class="btn-export" onclick="exportToCSV()">
+                <i class="fas fa-file-csv"></i>
+                Export as CSV
+            </button>
+            <button class="btn-export" onclick="exportToPDF()">
+                <i class="fas fa-file-pdf"></i>
+                Export as PDF
+            </button>
+            <button class="btn-export" onclick="printDashboard()">
+                <i class="fas fa-print"></i>
+                Print Dashboard
+            </button>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Update current date and time
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+    
+    // Calculate and display statistics
+    calculateStatistics();
+    
+    // Calculate individual date statistics
+    calculateDateStatistics();
+    
+    // Setup charts
+    if (typeof Chart !== 'undefined' && document.getElementById('attendanceSummaryChart')) {
+        setupCharts();
+    }
+    
+    // Setup filters
+    setupFilters();
+    
+    // Setup day of week display
+    setupDayOfWeek();
+    
+    // Initialize collapsed cards
+    initializeCards();
+});
+
+function updateDateTime() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    
+    const formatted = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    const element = document.getElementById('currentDateTime');
+    if (element) {
+        element.textContent = formatted;
+    }
+}
+
+function calculateStatistics() {
+    const records = {{ records|safe }};
+    let totalPresent = 0, totalAbsent = 0, totalSessions = 0;
+    
+    records.forEach(record => {
+        Object.keys(record).forEach(dateKey => {
+            if (dateKey !== 'year' && dateKey !== 'section' && dateKey !== 'attendance_taken_by') {
+                totalSessions++;
+                const students = record[dateKey].AttendanceData || [];
+                students.forEach(student => {
+                    if (student.status === 'present') totalPresent++;
+                    else totalAbsent++;
+                });
+            }
+        });
+    });
+    
+    const total = totalPresent + totalAbsent;
+    const rate = total > 0 ? ((totalPresent / total) * 100).toFixed(1) : 0;
+    
+    document.getElementById('totalPresent').textContent = totalPresent;
+    document.getElementById('totalAbsent').textContent = totalAbsent;
+    document.getElementById('attendanceRate').textContent = rate + '%';
+}
+
+function calculateDateStatistics() {
+    // Calculate stats for each date block
+    const dateBlocks = document.querySelectorAll('.attendance-date-block');
+    
+    dateBlocks.forEach(block => {
+        const rows = block.querySelectorAll('.attendance-table tbody tr');
+        let presentCount = 0, absentCount = 0;
+        
+        rows.forEach(row => {
+            const status = row.dataset.status;
+            if (status === 'present') presentCount++;
+            else if (status === 'absent') absentCount++;
+        });
+        
+        const total = presentCount + absentCount;
+        const percentage = total > 0 ? ((presentCount / total) * 100).toFixed(1) : 0;
+        
+        // Update stats display
+        const presentSpan = block.querySelector('.present-count');
+        const absentSpan = block.querySelector('.absent-count');
+        const totalSpan = block.querySelector('.total-count');
+        const progressFill = block.querySelector('.progress-fill');
+        const progressText = block.querySelector('.progress-text');
+        
+        if (presentSpan) presentSpan.textContent = presentCount;
+        if (absentSpan) absentSpan.textContent = absentCount;
+        if (totalSpan) totalSpan.textContent = total;
+        if (progressFill) progressFill.style.width = percentage + '%';
+        if (progressText) progressText.textContent = percentage + '% Present';
+    });
+}
+
+let attendanceChart = null;
+
+function setupCharts() {
+    const records = {{ records|safe }};
+    const chartData = prepareChartData(records);
+    renderChart('bar', chartData);
+    
+    // Setup chart type buttons
+    document.querySelectorAll('.btn-graph').forEach(btn => {
+        btn.addEventListener('click', function() {
+            document.querySelectorAll('.btn-graph').forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            renderChart(this.dataset.chart, chartData);
+        });
+    });
+}
+
+function prepareChartData(records) {
+    const labels = [];
+    const presentData = [];
+    const absentData = [];
+    
+    records.forEach(record => {
+        Object.keys(record).forEach(dateKey => {
+            if (dateKey !== 'year' && dateKey !== 'section' && dateKey !== 'attendance_taken_by') {
+                const students = record[dateKey].AttendanceData || [];
+                const present = students.filter(s => s.status === 'present').length;
+                const absent = students.filter(s => s.status === 'absent').length;
+                
+                labels.push(`${dateKey} (${record.year}-${record.section})`);
+                presentData.push(present);
+                absentData.push(absent);
+            }
+        });
+    });
+    
+    return { labels, presentData, absentData };
+}
+
+function renderChart(type, data) {
+    const ctx = document.getElementById('attendanceSummaryChart').getContext('2d');
+    
+    if (attendanceChart) {
+        attendanceChart.destroy();
+    }
+    
+    const config = {
+        type: type === 'pie' ? 'doughnut' : type,
+        data: type === 'pie' ? {
+            labels: ['Present', 'Absent'],
+            datasets: [{
+                data: [
+                    data.presentData.reduce((a, b) => a + b, 0),
+                    data.absentData.reduce((a, b) => a + b, 0)
+                ],
+                backgroundColor: ['#27ae60', '#e74c3c'],
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        } : {
+            labels: data.labels,
+            datasets: [
+                {
+                    label: 'Present',
+                    data: data.presentData,
+                    backgroundColor: 'rgba(39, 174, 96, 0.8)',
+                    borderColor: '#27ae60',
+                    borderWidth: 2
+                },
+                {
+                    label: 'Absent',
+                    data: data.absentData,
+                    backgroundColor: 'rgba(231, 76, 60, 0.8)',
+                    borderColor: '#e74c3c',
+                    borderWidth: 2
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'top' },
+                title: {
+                    display: true,
+                    text: `Attendance ${type === 'pie' ? 'Distribution' : 'by Date & Section'}`
+                }
+            },
+            scales: type === 'pie' ? {} : {
+                x: { stacked: type === 'bar' },
+                y: { stacked: type === 'bar', beginAtZero: true }
+            }
+        }
+    };
+    
+    attendanceChart = new Chart(ctx, config);
+}
+
+function setupFilters() {
+    const yearFilter = document.getElementById('yearFilter');
+    const sectionFilter = document.getElementById('sectionFilter');
+    const dateFilter = document.getElementById('dateFilter');
+    
+    [yearFilter, sectionFilter, dateFilter].forEach(filter => {
+        if (filter) {
+            filter.addEventListener('change', applyFilters);
+        }
+    });
+}
+
+function applyFilters() {
+    const yearFilter = document.getElementById('yearFilter').value;
+    const sectionFilter = document.getElementById('sectionFilter').value;
+    const dateFilter = document.getElementById('dateFilter').value;
+    
+    const cards = document.querySelectorAll('.attendance-card');
+    
+    cards.forEach(card => {
+        let showCard = true;
+        
+        if (yearFilter !== 'all' && card.dataset.year !== yearFilter) {
+            showCard = false;
+        }
+        
+        if (sectionFilter !== 'all' && card.dataset.section !== sectionFilter) {
+            showCard = false;
+        }
+        
+        if (dateFilter) {
+            const dateBlocks = card.querySelectorAll('.attendance-date-block');
+            let hasMatchingDate = false;
+            
+            dateBlocks.forEach(block => {
+                if (block.dataset.date === dateFilter) {
+                    hasMatchingDate = true;
+                    block.style.display = 'block';
+                } else {
+                    block.style.display = 'none';
+                }
+            });
+            
+            if (!hasMatchingDate) showCard = false;
+        } else {
+            const dateBlocks = card.querySelectorAll('.attendance-date-block');
+            dateBlocks.forEach(block => {
+                block.style.display = 'block';
+            });
+        }
+        
+        card.style.display = showCard ? 'block' : 'none';
+    });
+}
+
+function resetFilters() {
+    document.getElementById('yearFilter').value = 'all';
+    document.getElementById('sectionFilter').value = 'all';
+    document.getElementById('dateFilter').value = '';
+    applyFilters();
+}
+
+function setupDayOfWeek() {
+    const dateBlocks = document.querySelectorAll('.attendance-date-block');
+    dateBlocks.forEach(block => {
+        const dateStr = block.dataset.date;
+        if (dateStr) {
+            const date = new Date(dateStr + 'T00:00:00');
+            const dayOfWeek = date.toLocaleDateString('en-US', { weekday: 'long' });
+            const dayElement = block.querySelector('.day-of-week');
+            if (dayElement) {
+                dayElement.textContent = `(${dayOfWeek})`;
+            }
+        }
+    });
+}
+
+function toggleCard(button) {
+    const card = button.closest('.attendance-card');
+    const content = card.querySelector('.card-content');
+    const icon = button.querySelector('i');
+    
+    if (content.style.display === 'none') {
+        content.style.display = 'block';
+        icon.classList.remove('fa-chevron-down');
+        icon.classList.add('fa-chevron-up');
+        button.setAttribute('aria-expanded', 'true');
+    } else {
+        content.style.display = 'none';
+        icon.classList.remove('fa-chevron-up');
+        icon.classList.add('fa-chevron-down');
+        button.setAttribute('aria-expanded', 'false');
+    }
+}
+
+function initializeCards() {
+    const cards = document.querySelectorAll('.attendance-card');
+    cards.forEach((card, index) => {
+        const content = card.querySelector('.card-content');
+        const button = card.querySelector('.btn-expand');
+        
+        if (index > 2) { // Collapse cards after the first 3
+            content.style.display = 'none';
+            button.querySelector('i').classList.remove('fa-chevron-up');
+            button.querySelector('i').classList.add('fa-chevron-down');
+            button.setAttribute('aria-expanded', 'false');
+        } else {
+            content.style.display = 'block';
+            button.querySelector('i').classList.remove('fa-chevron-down');
+            button.querySelector('i').classList.add('fa-chevron-up');
+            button.setAttribute('aria-expanded', 'true');
+        }
+    });
+}
+
+// Export functions
+function exportToCSV() {
+    console.log('Exporting to CSV...');
+    if (typeof showToast === 'function') {
+        showToast('CSV export feature coming soon!', 'info', 2000);
+    }
+}
+
+function exportToPDF() {
+    console.log('Exporting to PDF...');
+    if (typeof showToast === 'function') {
+        showToast('PDF export feature coming soon!', 'info', 2000);
+    }
+}
+
+function printDashboard() {
+    window.print();
+}
+</script>
 {% endblock %}
