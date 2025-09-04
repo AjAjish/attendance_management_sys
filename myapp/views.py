@@ -3,7 +3,8 @@ from django.contrib import messages
 from .models import User,Student, AttendanceRecord
 import json
 from datetime import datetime
-from django.http import JsonResponse
+from django.http import JsonResponse,HttpResponse
+import csv
 
 
 def base(request):
@@ -44,20 +45,20 @@ def login(request):
     return render(request, 'login.html')
 
 def dashboard(request, id=None):
-    """
-    Render the attendance dashboard with virtual and graphical representations.
-    Reads attendance JSON from AttendanceRecord.attendance_record (JSONField).
-    """
-    records_qs = AttendanceRecord.objects.all()
-    # Ensure we pass dict objects, not None or empty string
-    records = []
-    for rec in records_qs:
-        if rec.attendance_record:
-            records.append(rec.attendance_record)
-    # If you want to filter by id, you can do:
-    # if id is not None:
-    #     records = [rec.attendance_record for rec in records_qs if rec.id == id]
-    return render(request, "dashboard.html", {"records": records})
+    id = request.session.get('id')
+    if id:
+        user = User.objects.get(id=id)
+        records_qs = AttendanceRecord.objects.all()
+        # Ensure we pass dict objects, not None or empty string
+        records = []
+        for rec in records_qs:
+            if rec.attendance_record:
+                records.append(rec.attendance_record)
+        # If you want to filter by id, you can do:
+        # if id is not None:
+        #     records = [rec.attendance_record for rec in records_qs if rec.id == id]
+        return render(request, "dashboard.html", {"user": user, "records": records})
+    return render(request, 'dashboard.html', {"user": None, "records": []})
 
 def student(request, id=None):
     years = [2, 3, 4]
@@ -160,3 +161,30 @@ def submit_attendance(request,id=None):
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
+def export_as_csv(request, id=None):
+    if id is None:
+        return JsonResponse({"success": False, "error": "Invalid ID"}, status=400)
+
+    try:
+        records = AttendanceRecord.objects.all()
+    except AttendanceRecord.DoesNotExist:
+        return JsonResponse({"success": False, "error": "No records found"}, status=404)
+
+    if not records.exists():
+        return JsonResponse({"success": False, "error": "No records found"}, status=404)
+
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="attendance_data.csv"'
+
+    writer = csv.writer(response)
+    writer.writerow(['Date', 'Status'])
+
+    try:
+        for record in records:
+            # Assuming attendance_record is a dict like {'2025-09-01': 'Present'}
+            for date, status in record.attendance_record.items():
+                writer.writerow([date, status])
+    except Exception as e:
+        return JsonResponse({"success": False, "error": str(e)}, status=500)
+
+    return response

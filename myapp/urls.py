@@ -16,6 +16,7 @@ urlpatterns = [
     path('manage/<uuid:id>/', views.manage, name='manage_with_id'),
     path('logout/', views.logout, name='logout'),
     path('submit_attendance/<uuid:id>/', views.submit_attendance, name='submit_attendance'),
+    path('export_as_csv/<uuid:id>/', views.export_as_csv, name='export_as_csv'),
 ]
 
 if settings.DEBUG:

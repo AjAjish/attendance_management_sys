@@ -232,14 +232,14 @@
             Export Data
         </h3>
         <div class="export-buttons">
-            <button class="btn-export" onclick="exportToCSV()">
+            <button class="btn-export" onclick="exportToCSV()" data-user-id="{{ user.id }}">
                 <i class="fas fa-file-csv"></i>
                 Export as CSV
             </button>
-            <button class="btn-export" onclick="exportToPDF()">
+            <!-- <button class="btn-export" onclick="exportToPDF()">
                 <i class="fas fa-file-pdf"></i>
                 Export as PDF
-            </button>
+            </button> -->
             <button class="btn-export" onclick="printDashboard()">
                 <i class="fas fa-print"></i>
                 Print Dashboard
@@ -568,10 +568,29 @@ function initializeCards() {
 // Export functions
 function exportToCSV() {
     console.log('Exporting to CSV...');
-    if (typeof showToast === 'function') {
-        showToast('CSV export feature coming soon!', 'info', 2000);
+
+    // Get user ID dynamically, assuming it's in a data attribute on the button
+    const button = document.querySelector('.btn-export');
+    const userId = button.getAttribute('data-user-id');
+
+    if (!userId) {
+        console.error('User ID not found.');
+        if (typeof showToast === 'function') {
+            showToast('Unable to export: User ID missing.', 'error', 2000);
+        }
+        return;
     }
+
+    const url = `/export_as_csv/${userId}/`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'attendance_data.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
+
 
 function exportToPDF() {
     console.log('Exporting to PDF...');
