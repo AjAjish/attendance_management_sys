@@ -214,11 +214,14 @@
                 <div class="placeholder-icon">
                     <i class="fas fa-clipboard-list"></i>
                 </div>
+                {% if user.id %}
                 <h3>No Attendance Records Found</h3>
                 <p>Start taking attendance to see records and analytics here.</p>
-                <a href="{% url 'student_management' %}" class="btn btn-primary">
+                <a href="{% url 'manage_with_id' id=user.id %}" class="btn btn-primary">
                     <i class="fas fa-plus"></i>
                     Take Attendance
+                </a>
+                {% endif %}
                 </a>
             </div>
         {% endif %}

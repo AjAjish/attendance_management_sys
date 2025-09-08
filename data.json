@@ -1,352 +1,513 @@
 [
-  {
-    "name": "John Doe",
-    "roll_number": "CSE2001",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Jane Smith",
-    "roll_number": "CSE2002",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Michael Brown",
-    "roll_number": "CSE2003",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Emily Davis",
-    "roll_number": "CSE2004",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Daniel Wilson",
-    "roll_number": "CSE2005",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Sophia Johnson",
-    "roll_number": "CSE2006",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Liam Anderson",
-    "roll_number": "CSE2007",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Olivia Thomas",
-    "roll_number": "CSE2008",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Noah Lee",
-    "roll_number": "CSE2009",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "Ava Harris",
-    "roll_number": "CSE2010",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "A"
-  },
-  {
-    "name": "William Clark",
-    "roll_number": "CSE2011",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Isabella Lewis",
-    "roll_number": "CSE2012",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "James Walker",
-    "roll_number": "CSE2013",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Mia Young",
-    "roll_number": "CSE2014",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Benjamin Hall",
-    "roll_number": "CSE2015",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Charlotte Allen",
-    "roll_number": "CSE2016",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Elijah Scott",
-    "roll_number": "CSE2017",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Amelia Adams",
-    "roll_number": "CSE2018",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Lucas Perez",
-    "roll_number": "CSE2019",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Harper King",
-    "roll_number": "CSE2020",
-    "course": "BE Computer Science and Engineering",
-    "year": 2,
-    "class_section": "B"
-  },
-  {
-    "name": "Henry Rivera",
-    "roll_number": "CSE3001",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Evelyn Wright",
-    "roll_number": "CSE3002",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Alexander Lopez",
-    "roll_number": "CSE3003",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Scarlett Hill",
-    "roll_number": "CSE3004",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Jack Green",
-    "roll_number": "CSE3005",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Grace Baker",
-    "roll_number": "CSE3006",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Leo Nelson",
-    "roll_number": "CSE3007",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Ella Carter",
-    "roll_number": "CSE3008",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Sebastian Mitchell",
-    "roll_number": "CSE3009",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "Aria Roberts",
-    "roll_number": "CSE3010",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "A"
-  },
-  {
-    "name": "David Turner",
-    "roll_number": "CSE3011",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Sofia Phillips",
-    "roll_number": "CSE3012",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Matthew Campbell",
-    "roll_number": "CSE3013",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Chloe Parker",
-    "roll_number": "CSE3014",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Joseph Evans",
-    "roll_number": "CSE3015",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Lily Edwards",
-    "roll_number": "CSE3016",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Samuel Collins",
-    "roll_number": "CSE3017",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Victoria Stewart",
-    "roll_number": "CSE3018",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Owen Morris",
-    "roll_number": "CSE3019",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Hazel Rogers",
-    "roll_number": "CSE3020",
-    "course": "BE Computer Science and Engineering",
-    "year": 3,
-    "class_section": "B"
-  },
-  {
-    "name": "Ethan Bailey",
-    "roll_number": "CSE4001",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Abigail Rivera",
-    "roll_number": "CSE4002",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Logan Martinez",
-    "roll_number": "CSE4003",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Madison Flores",
-    "roll_number": "CSE4004",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Aiden Hughes",
-    "roll_number": "CSE4005",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Ella Jenkins",
-    "roll_number": "CSE4006",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Jackson Perry",
-    "roll_number": "CSE4007",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Penelope Sanders",
-    "roll_number": "CSE4008",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Mason Foster",
-    "roll_number": "CSE4009",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  },
-  {
-    "name": "Zoe Powell",
-    "roll_number": "CSE4010",
-    "course": "BE Computer Science and Engineering",
-    "year": 4,
-    "class_section": "A"
-  }
+   
+    {
+        "name":"ARIDASS S",
+        "roll_number":"412324104004",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"BALA KRITHIKA.B",
+        "roll_number":"412324104007",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"HARIPRIYA.A",
+        "roll_number":"412324104020",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"JENIFER ANNE JESSICA.V",
+        "roll_number":"412324104027",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"KAVISHRI.I.K",
+        "roll_number":"412324104031",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"KEERTHANA  K",
+        "roll_number":"412324104033",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"EZHIL B S",
+        "roll_number":"412324104015",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"NIVEDHA.S",
+        "roll_number":"412324104044",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"NIVETHA.P",
+        "roll_number":"412324104046",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"PADMAGAYATHRI",
+        "roll_number":"412324104047",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"POORVIKA BAI S",
+        "roll_number":"412324104049",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"PREETHI.S",
+        "roll_number":"412324104052",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"PRITIVII ROWINEBI.R",
+        "roll_number":"412324104054",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"PRIYADHARSHINI.K",
+        "roll_number":"412324104055",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SAI VIGNESH.G",
+        "roll_number":"412324104056",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SAKTHI KUMAR KANNAN PRABU",
+        "roll_number":"412324104057",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SAMSON.G",
+        "roll_number":"412324104058",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SANGAMITHRA  S",
+        "roll_number":"412324104059",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SANTHOSH KUMAR.V",
+        "roll_number":"412324104060",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SATHIYA MURTHI.C",
+        "roll_number":"412324104061",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SRILEKHA.S",
+        "roll_number":"412324104063",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SUMITHRA.P",
+        "roll_number":"412324104064",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SUSIDHA.S",
+        "roll_number":"412324104065",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SWATHI.D",
+        "roll_number":"412324104066",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SWETHA.V",
+        "roll_number":"412324104067",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"THAVANESH.S",
+        "roll_number":"412324104068",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"THENMOZHI.M",
+        "roll_number":"412324104069",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"VALARMATHI.G ",
+        "roll_number":"412324104070",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"VARMA.D",
+        "roll_number":"412324104071",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"VIJAYALAKSHMI.G",
+        "roll_number":"412324104072",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"ANAND V",
+        "roll_number":"LE001",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"BALAJI S",
+        "roll_number":"LE002",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"BERNAND JEROLD J",
+        "roll_number":"LE003 ",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"KEETHANA D",
+        "roll_number":"LE004",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"KISHORE KUMAR I",
+        "roll_number":"LE005",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SATHISH R",
+        "roll_number":"LE006",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },
+    {
+        "name":"SURESH M",
+        "roll_number":"LE007",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"B"
+    },{
+        "name":"BHUVANESHWARAN.R",
+        "roll_number":"412324104008",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"DEEKSHIN  J S",
+        "roll_number":"412324104009",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"DEEPAK.R",
+        "roll_number":"412324104010",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"DHANUSH.M",
+        "roll_number":"412324104011",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"DHARSHINI.V",
+        "roll_number":"412324104012",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"DINESHKUMAR.M",
+        "roll_number":"412324104013",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"ESAKI ADHITHAN.C",
+        "roll_number":"412324104014",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"GOKULSARATHY.N",
+        "roll_number":"412324104016",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"GOPINATH.A",
+        "roll_number":"412324104017",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"HARIPRASANTH.D",
+        "roll_number":"412324104018",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"HARIPRASATH.S",
+        "roll_number":"412324104019",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JABEZ.V",
+        "roll_number":"412324104021",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JANANI.T.C",
+        "roll_number":"412324104022",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JASWANTH.S",
+        "roll_number":"412324104023",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JAYASRI . A",
+        "roll_number":"412324104024",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JEBANISHA.T",
+        "roll_number":"412324104025",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JEEVITHA.D",
+        "roll_number":"412324104026",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JONUS SMITH.A",
+        "roll_number":"412324104028",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"JOTHIKA  M",
+        "roll_number":"412324104029",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"KATHIR.R",
+        "roll_number":"412324104030",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"KEVIN JOEL.M",
+        "roll_number":"412324104034",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"LALITHA.G",
+        "roll_number":"412324104035",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"LOKESH.K",
+        "roll_number":"412324104036",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"MADHANRAJ.P",
+        "roll_number":"412324104037",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"MAHESH.R",
+        "roll_number":"412324104038",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"MAHESHWARI.M",
+        "roll_number":"412324104039",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"MANO.A.P",
+        "roll_number":"412324104040",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"MOHAMED AADHIL.T.A",
+        "roll_number":"412324104041",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"NANDHINI.N",
+        "roll_number":"412324104042",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"NAVEEN KUMAR.B.A",
+        "roll_number":"412324104043",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"NIVEDHITHA.S",
+        "roll_number":"412324104045",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"POOJA.R",
+        "roll_number":"412324104048",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"PRAVEEN KANTH R",
+        "roll_number":"412324104050",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"PRAVEENKUMAR R",
+        "roll_number":"412324104051",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"PRITHIKA.T",
+        "roll_number":"412324104053",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    },
+    {
+        "name":"SOWRAV KUMAR P",
+        "roll_number":"412324104062",
+        "course":"BE Computer Science and Engineering",
+        "year":2,
+        "class_section":"A"
+    }
 ]

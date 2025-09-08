@@ -10,8 +10,8 @@
             <a href="{% url 'login' %}" class="btn btn-primary home-link">
                 <i class="fas fa-sign-in-alt"></i> Login
             </a>
-            <a href="{% url 'dashboard' %}" class="btn btn-secondary home-link">
-                <i class="fas fa-tachometer-alt"></i> Dashboard
+            <a href="{% url 'student' %}" class="btn btn-secondary home-link">
+                <i class="fas fa-users-cog"></i> View Student
             </a>
             {% endif %}
             {% if user.id %}
