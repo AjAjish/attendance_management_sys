@@ -13,7 +13,7 @@
         <div class="student-controls">
             {% for year in years %}
             <div class="btn-group">
-                <button class="btn year-btn" type="button" aria-haspopup="true" aria-expanded="false">
+                <button class="btn year-btn" type="button" aria-haspopup="true" aria-expanded="false" data-year="{{ year }}">
                     <span>{{ year }} Year</span>
                     <i class="fas fa-caret-down"></i>
                 </button>
@@ -30,7 +30,7 @@
             </div>
             {% endfor %}
 
-            <button type="submit" class="btn submit-btn">
+            <button type="submit" class="btn submit-btn" id="loadStudentsBtn">
                 <i class="fas fa-users"></i>
                 <span>Load Students</span>
             </button>
@@ -55,7 +55,7 @@
 
         <!-- Actions Bar -->
         <div class="actions-bar">
-            <button type="button" id="openAttendanceModalBtn" class="btn primary">
+            <button type="button" id="openAttendanceModalBtn" class="btn primary" {% if not students %}disabled{% endif %}>
                 <i class="fas fa-clipboard-check"></i>
                 <span>Submit Attendance</span>
             </button>
@@ -68,16 +68,25 @@
                 <thead>
                     <tr>
                         <th class="select-col">
-                            <label class="sr-only" for="selectAll">Select all</label>
-                            <input type="checkbox" id="selectAll">
+                            <input type="checkbox" id="selectAll" aria-label="Select All">
                         </th>
                         <th>#</th>
                         <th>Roll Number</th>
                         <th>Name</th>
                         <th>Course</th>
                         <th>Year</th>
-                        <th>Class Section</th>
-                        <th>Attendance</th>
+                        <th>Section</th>
+                        <th class="attend-actions">
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="checkbox" id="mark-all-present" aria-label="Mark All Present">
+                                <label for="mark-all-present" style="margin: 0; cursor: pointer; font-weight: 500;">
+                                    <span style="display: inline-flex; align-items: center; gap: 4px;">
+                                        <i class="fas fa-check"></i>
+                                        Present
+                                    </span>
+                                </label>
+                            </div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -155,11 +164,18 @@
 </div>
 
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
     const groups = document.querySelectorAll(".btn-group");
     const yearInput = document.getElementById("selectedYear");
     const sectionInput = document.getElementById("selectedSection");
     const selectionInfo = document.getElementById("currentSelection");
+    const loadStudentsBtn = document.getElementById("loadStudentsBtn");
+    const openAttendanceModalBtn = document.getElementById("openAttendanceModalBtn");
+
+    // Maintain last loaded year/section
+    let lockedYear = yearInput.value;
+    let lockedSection = sectionInput.value;
+    let attendanceStarted = false;
 
     // Dropdown open/close
     groups.forEach(group => {
@@ -181,6 +197,13 @@
     document.querySelectorAll(".select-section").forEach(btn => {
         btn.addEventListener("click", (e) => {
             e.stopPropagation();
+
+            // If attendance is started, disallow changing year/section
+            if (attendanceStarted) {
+                if (typeof showToast === "function") showToast("Cannot change year/section after marking attendance. Please submit or reload students.", "error", 2200);
+                return;
+            }
+
             const year = btn.getAttribute("data-year");
             const section = btn.getAttribute("data-section");
             yearInput.value = year;
@@ -191,6 +214,14 @@
         });
     });
 
+    // Form submit: lock the year/section and reset attendanceStarted
+    loadStudentsBtn?.addEventListener("click", function() {
+        attendanceStarted = false;
+        lockedYear = yearInput.value;
+        lockedSection = sectionInput.value;
+        if (typeof showToast === "function") showToast("Student Data Loaded", "success", 1000);
+    });
+
     // Attendance present/absent toggle per row
     document.querySelectorAll(".attend-actions").forEach(cell => {
         const row = cell.closest("tr");
@@ -199,12 +230,22 @@
         const roll = row.querySelector(".roll-cell")?.textContent?.trim() || "";
 
         function setState(type) {
-            // Toggle buttons
+            // On first attendance mark, lock year/section
+            if (!attendanceStarted) {
+                attendanceStarted = true;
+                lockedYear = yearInput.value;
+                lockedSection = sectionInput.value;
+            }
+            // If changed after marking, disallow
+            if (attendanceStarted && (yearInput.value !== lockedYear || sectionInput.value !== lockedSection)) {
+                if (typeof showToast === "function") showToast("You changed year/section. Please reload students to continue.", "error", 2300);
+                return;
+            }
+
             presentBtn.classList.toggle("active", type === "present");
             absentBtn.classList.toggle("active", type === "absent");
             presentBtn.setAttribute("aria-pressed", type === "present" ? "true" : "false");
             absentBtn.setAttribute("aria-pressed", type === "absent" ? "true" : "false");
-            // Row highlight + dataset
             row.classList.remove("is-present", "is-absent");
             row.dataset.status = type;
             row.classList.add(type === "present" ? "is-present" : "is-absent");
@@ -233,6 +274,45 @@
         updateSelectAll();
     });
     tableEl?.querySelectorAll(".row-select").forEach(cb => cb.addEventListener("change", updateSelectAll));
+
+    // Mark All Present
+    const markAllPresent = document.getElementById('mark-all-present');
+    if (markAllPresent) {
+        markAllPresent.addEventListener('change', function () {
+            // If attendance is started and year/section changed, disallow
+            if (attendanceStarted && (yearInput.value !== lockedYear || sectionInput.value !== lockedSection)) {
+                if (typeof showToast === "function") showToast("You changed year/section. Please reload students to continue.", "error", 2300);
+                markAllPresent.checked = false;
+                return;
+            }
+            const allRows = document.querySelectorAll('.students-table tbody tr');
+            if (markAllPresent.checked) {
+                // Mark all as present
+                allRows.forEach(row => {
+                    const presentBtn = row.querySelector('.btn-attend.present');
+                    if (!presentBtn.classList.contains('active')) {
+                        presentBtn.click();
+                    }
+                });
+                attendanceStarted = true;
+                lockedYear = yearInput.value;
+                lockedSection = sectionInput.value;
+            } else {
+                // Remove present mark (reset status for all)
+                allRows.forEach(row => {
+                    const presentBtn = row.querySelector('.btn-attend.present');
+                    const absentBtn = row.querySelector('.btn-attend.absent');
+                    presentBtn.classList.remove('active');
+                    absentBtn.classList.remove('active');
+                    presentBtn.setAttribute('aria-pressed', 'false');
+                    absentBtn.setAttribute('aria-pressed', 'false');
+                    row.dataset.status = '';
+                    row.classList.remove('is-present', 'is-absent');
+                });
+                attendanceStarted = false;
+            }
+        });
+    }
 
     // Attendance Modal
     const modal = document.getElementById("attendanceModal");
@@ -298,6 +378,11 @@
             if (typeof showToast === "function") showToast("Set Present or Absent for all selected students.", "error", 1400);
             return;
         }
+        // If year or section changed after attendance started, disallow
+        if (attendanceStarted && (yearInput.value !== lockedYear || sectionInput.value !== lockedSection)) {
+            if (typeof showToast === "function") showToast("You changed year/section. Please reload students to continue.", "error", 2300);
+            return;
+        }
         // Build temp data
         const tempData = selectedRows.map(tr => ({
             roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
@@ -320,9 +405,14 @@
             if (typeof showToast === "function") showToast("Year and Section not set.", "error", 1200);
             return;
         }
+        // Extra check: If year/section changed after attendance started, disallow
+        if (attendanceStarted && (yearValue !== lockedYear || sectionValue !== lockedSection)) {
+            if (typeof showToast === "function") showToast("You changed year/section. Please reload students to continue.", "error", 2300);
+            return;
+        }
         const payload = {
             year: yearValue,
-            section: sectionValue  ,
+            section: sectionValue,
             items: selectedRows.map(tr => ({
                 roll: tr.dataset.roll || tr.querySelector(".roll-cell")?.textContent?.trim() || "",
                 name: tr.dataset.name || tr.querySelector(".name-cell")?.textContent?.trim() || "",
@@ -345,6 +435,12 @@
         .then(data => {
             if (data.success) {
                 if (typeof showToast === "function") showToast("Attendance submitted!", "success", 1200);
+                setTimeout(() => {
+                    window.location.href = "{% url 'dashboard_with_id' id=user.id %}";
+                }, 1200);
+                // After submit, unlock year/section
+                attendanceStarted = false;
+                
             } else {
                 if (typeof showToast === "function") showToast("Error: " + (data.error || "Unknown error"), "error", 1400);
             }

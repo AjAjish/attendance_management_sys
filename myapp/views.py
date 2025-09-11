@@ -5,6 +5,8 @@ import json
 from datetime import datetime
 from django.http import JsonResponse,HttpResponse
 import csv
+import pandas as pd
+from io import BytesIO
 
 
 def base(request):
@@ -26,7 +28,7 @@ def login(request):
             user = User.objects.get(username=username)
             if user.password == password:  
                 id = str(user.id)
-                # Make it userid on session for after login
+                # Make it userid on session after login
                 request.session['id'] = id
                 messages.success(request, 'Login successful!')
                 return redirect('dashboard_with_id', id=id)
@@ -77,7 +79,8 @@ def student(request, id=None):
         return render(request, 'student.html', {
             'user': user,
             'students': students,
-            'years': years
+            'years': years,
+            'section': section,
         })
 
     # GET Request – just load the page with years and user
@@ -86,8 +89,9 @@ def student(request, id=None):
 
     return render(request, 'student.html', {
         'user': user,
-        'students': students, 
-        'years': years
+        'students': students,
+        'years': years,
+        'section': section,
     })
 
 def manage(request, id=None):
@@ -99,6 +103,8 @@ def manage(request, id=None):
         year = request.POST.get('year')
         section = request.POST.get('section')
         print(f"Filtering students for Year: {year}, Section: {section}")
+        selected_year = year
+        selected_section = section
 
         # After filtering, fetch students for UI display
         if year and section:
@@ -111,7 +117,10 @@ def manage(request, id=None):
     return render(request, 'manage.html', {
         'user': user,
         'students': students,
-        'years': years
+        'years': years,
+        'section': section,
+        'selected_year': selected_year,
+        'selected_section': selected_section
     })
 
 
@@ -135,6 +144,17 @@ def submit_attendance(request,id=None):
             items = attendance_data.get('items', [])
             username = user.username
             
+            # Check if attendance for this date, year and section already exists
+            existing_records = AttendanceRecord.objects.filter(
+                attendance_record__year=year,
+                attendance_record__section=section,
+                attendance_record__has_key=str(today)
+            ) 
+
+            if existing_records.exists():
+                messages.error(request, 'Attendance for today has already been submitted!')
+                return JsonResponse({"success": False, "error": "Attendance for today already submitted"})
+
             attendance_dict = {}
             attendance_dict={
                 "year":year,
@@ -144,13 +164,9 @@ def submit_attendance(request,id=None):
                     "AttendanceData": items
                 }
             }
-            if not AttendanceRecord.objects.filter(attendance_record=attendance_dict).exists():
-                AttendanceRecord.objects.create(
-                    attendance_record=attendance_dict
-                )
-            else:
-                messages.error(request, 'Attendance for today has already been submitted!')
-                return JsonResponse({"success": False, "error": "Attendance for today already submitted"})
+            
+            AttendanceRecord.objects.create(attendance_record=attendance_dict)
+
             messages.success(request, 'Attendance submitted successfully!')
             return JsonResponse({"success": True})
         except User.DoesNotExist:
@@ -187,4 +203,57 @@ def export_as_csv(request, id=None):
     except Exception as e:
         return JsonResponse({"success": False, "error": str(e)}, status=500)
 
+    return response
+
+def export_as_excel(request, id=None):
+    if id is None:
+        return JsonResponse({"success": False, "error": "Invalid ID"}, status=400)
+
+    try:
+        data = AttendanceRecord.objects.all().values()
+    except AttendanceRecord.DoesNotExist:
+        return JsonResponse({"success": False, "error": "No records found"}, status=404)
+
+    if not data.exists():
+        return JsonResponse({"success": False, "error": "No records found"}, status=404)
+
+    records = []
+    for entry in data:
+        record = entry['attendance_record']
+        year = record['year']
+        section = record['section']
+        taken = record['attendance_taken_by']
+
+        for key, value in record.items():
+            if key in ['year', 'section', 'attendance_taken_by']:
+                continue
+            if isinstance(value, dict) and 'AttendanceData' in value:
+                date = key
+                for student in value['AttendanceData']:
+                    records.append({
+                        'Year': year,
+                        'Section': section,
+                        'Date': date,
+                        'Roll': student['roll'],
+                        'Name': student['name'],
+                        'Status': student['status'],
+                        'Taken By': taken
+                    })
+
+    # Convert to DataFrame
+    df = pd.DataFrame(records)
+    # Write to an in-memory buffer
+    buffer = BytesIO()
+    with pd.ExcelWriter(buffer, engine='xlsxwriter') as writer:
+        df.to_excel(writer, index=False, sheet_name='Attendance')
+
+    buffer.seek(0)
+
+    response = HttpResponse(
+        buffer,
+        content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    )
+    print(f"HttpResponse: {response}")
+    response['Content-Disposition'] = 'attachment; filename="attendance_data.xlsx"'
+    print(f"response after setting header: {response}")
     return response

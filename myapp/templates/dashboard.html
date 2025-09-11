@@ -217,7 +217,11 @@
                 {% if user.id %}
                 <h3>No Attendance Records Found</h3>
                 <p>Start taking attendance to see records and analytics here.</p>
+<<<<<<< HEAD
                 <a href="{% url 'manage_with_id' id=user.id %}" class="btn btn-primary">
+=======
+                <a href="{% url 'login' %}" class="btn btn-primary">
+>>>>>>> 952b139 (Fixing bugs in Student attendance management)
                     <i class="fas fa-plus"></i>
                     Take Attendance
                 </a>
@@ -239,10 +243,10 @@
                 <i class="fas fa-file-csv"></i>
                 Export as CSV
             </button>
-            <!-- <button class="btn-export" onclick="exportToPDF()">
-                <i class="fas fa-file-pdf"></i>
-                Export as PDF
-            </button> -->
+            <button class="btn-export" onclick="exportToExcel()" data-user-id="{{ user.id }}">
+                <i class="fas fa-file-excel"></i>
+                Export as Excel
+            </button>
             <button class="btn-export" onclick="printDashboard()">
                 <i class="fas fa-print"></i>
                 Print Dashboard
@@ -595,11 +599,29 @@ function exportToCSV() {
 }
 
 
-function exportToPDF() {
-    console.log('Exporting to PDF...');
-    if (typeof showToast === 'function') {
-        showToast('PDF export feature coming soon!', 'info', 2000);
+function exportToExcel() {
+    console.log('Exporting to Excel...');
+
+    // Get user ID dynamically, assuming it's in a data attribute on the button
+    const button = document.querySelector('.btn-export');
+    const userId = button.getAttribute('data-user-id');
+
+    if (!userId) {
+        console.error('User ID not found.');
+        if (typeof showToast === 'function') {
+            showToast('Unable to export: User ID missing.', 'error', 2000);
+        }
+        return;
     }
+
+    const url = `/export_as_excel/${userId}/`;
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'attendance_data.xlsx');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 }
 
 function printDashboard() {
