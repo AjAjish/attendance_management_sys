@@ -1,23 +1,83 @@
+"""
+=================================================================================================
+                         Attendance Management System For CSE 
+=================================================================================================
+"""
+# import Django core libs
 from django.shortcuts import render , redirect
 from django.contrib import messages
+from django.http import JsonResponse,HttpResponse
+# import models
 from .models import User,Student, AttendanceRecord
+# import other libs
 import json
 from datetime import datetime
-from django.http import JsonResponse,HttpResponse
 import csv
 import pandas as pd
 from io import BytesIO
 
+"""
+=================================================================================================
 
+This Project was implemented for attendance management system using Django framework.
+
+=================================================================================================
+
+This attendance management system functionalities are as follows:
+1. Admin Authentication: Admin can log in with their credentials. 
+2. Dashboard: After logging in, users are directed to a dashboard that displays attendance records.
+3. View Students: Admin can view students based on year and section.
+4. Manage Students: Admin can filter and manage student records by year and section.
+5. Submit Attendance: Admin can submit attendance records for students, ensuring no duplicate entries for the same date.
+6. Export Attendance Data: Admin can export attendance records in CSV and Excel formats for external use.
+
+"""
+
+"""
+Work Flow:
+=================================================================================================
+
+    The web application has folloing templates:
+    1. base.html: The base template that other templates extend.
+    2. home.html: The homepage template.
+    3. login.html: The login page template.
+    4. dashboard.html: The dashboard template displaying attendance records.
+    5. student.html: The template for viewing students.
+    6. manage.html: The template for managing student records.
+
+    -->Before login user can access home , student and login page.
+    -->After login user can access dashboard and manage page.
+
+    After login() we must maintain admin id in session to access other pages.
+    Handling user id :
+    -->After successful login, user id is stored in session using request.session['id'].
+    -->For accessing other views, user id is retrieved from session using request.session.get('id').
+
+=================================================================================================
+
+    To understand POST and GET request handling in Django views.
+
+    -->POST are used to submit data to the server, such as login credentials or form submissions.
+    -->GET are used to retrieve data from the server, such as loading a page or fetching records.
+
+=================================================================================================
+
+"""
+
+# Create your views here.
+
+# 1. base(request): Renders the base template.
 def base(request):
     return render(request, 'base/base.html')
 
+# 2. home(request, id=None): Renders the home template, optionally with user data if id is provided.
 def home(request, id=None):
     if id:
         user = User.objects.get(id=id)
         return render(request, 'home.html', {'user': user})
     return render(request, 'home.html')
 
+# 3. login(request): Handles user login, validates credentials, and redirects to dashboard on success.
 def login(request):
     if request.method == 'POST':
         username = request.POST.get('username')
@@ -46,6 +106,7 @@ def login(request):
 
     return render(request, 'login.html')
 
+# 4. dashboard(request, id=None): Displays the dashboard with attendance records for the logged-in user.
 def dashboard(request, id=None):
     id = request.session.get('id')
     if id:
@@ -62,8 +123,10 @@ def dashboard(request, id=None):
         return render(request, "dashboard.html", {"user": user, "records": records})
     return render(request, 'dashboard.html', {"user": None, "records": []})
 
+# 5. student(request, id=None): Displays students based on year and section filters.
 def student(request, id=None):
     years = [2, 3, 4]
+    section = None
     students = Student.objects.all() 
 
     if request.method == 'POST':
@@ -94,9 +157,13 @@ def student(request, id=None):
         'section': section,
     })
 
+# 6. manage(request, id=None): Allows admin to filter and manage student records.
 def manage(request, id=None):
     years = [2, 3, 4]
+    section = None
     students = None
+    selected_year = None
+    selected_section = None
 
     if request.method == 'POST':
         # Extract year and section for filtering
@@ -123,14 +190,14 @@ def manage(request, id=None):
         'selected_section': selected_section
     })
 
-
+# 7. logout(request): Logs out the user by clearing session data and redirects to home.
 def logout(request):
     # Clear the session data
     request.session.flush()
     messages.success(request, 'Logout successful!')
     return redirect('home')
 
-
+# 8. submit_attendance(request, id=None): Handles attendance submission, ensuring no duplicates for the same date.
 def submit_attendance(request,id=None):
     if request.method == "POST":
         try:
@@ -155,6 +222,21 @@ def submit_attendance(request,id=None):
                 messages.error(request, 'Attendance for today has already been submitted!')
                 return JsonResponse({"success": False, "error": "Attendance for today already submitted"})
 
+            """
+            attendance_dict structure:
+            {
+                "year": year,
+                "section": section,
+                "attendance_taken_by": username,
+                "2025-09-01": {
+                    "AttendanceData": [
+                        {"roll": "CS101", "name": "Alice", "status": "Present"},
+                        {"roll": "CS102", "name": "Bob", "status": "Absent"},
+                        ...
+                    ]
+                }
+            }
+            """
             attendance_dict = {}
             attendance_dict={
                 "year":year,
@@ -177,6 +259,13 @@ def submit_attendance(request,id=None):
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
+
+"""
+I am still working on export data ...
+
+"""
+
+# 9. export_as_csv(request, id=None): Exports attendance records as a CSV file.
 def export_as_csv(request, id=None):
     if id is None:
         return JsonResponse({"success": False, "error": "Invalid ID"}, status=400)
@@ -205,6 +294,7 @@ def export_as_csv(request, id=None):
 
     return response
 
+# 10. export_as_excel(request, id=None): Exports attendance records as an Excel file.
 def export_as_excel(request, id=None):
     if id is None:
         return JsonResponse({"success": False, "error": "Invalid ID"}, status=400)
@@ -257,3 +347,6 @@ def export_as_excel(request, id=None):
     response['Content-Disposition'] = 'attachment; filename="attendance_data.xlsx"'
     print(f"response after setting header: {response}")
     return response
+
+
+              

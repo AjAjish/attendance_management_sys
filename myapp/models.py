@@ -23,5 +23,4 @@ class User(models.Model):
         return f"{self.id} - {self.username} ({self.email}) - {self.password}"
 
 class AttendanceRecord(models.Model):
-    date = models.DateField()
     attendance_record = models.JSONField(default=dict, blank=True)
