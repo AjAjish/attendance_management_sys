@@ -1,6 +1,6 @@
 """
 =================================================================================================
-                         Attendance Management System For CSE 
+                            Attendance Management System For CSE 
 =================================================================================================
 """
 # import Django core libs
@@ -8,7 +8,7 @@ from django.shortcuts import render , redirect
 from django.contrib import messages
 from django.http import JsonResponse,HttpResponse
 # import models
-from .models import User,Student, AttendanceRecord
+from .models import User,Student, AttendanceRecord,ManageSession
 # import other libs
 import json
 from datetime import datetime
@@ -190,6 +190,50 @@ def manage(request, id=None):
         'selected_section': selected_section
     })
 
+def session_management(request, id=None):
+
+    if request.method == "POST":
+        session_name = request.POST.get('session_name')
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+
+        # Debugging prints
+        print(f"Session Name: {session_name}, Start Date: {start_date}, End Date: {end_date}")
+
+        today = datetime.now().date()
+        if start_date and end_date and session_name:
+            try:
+                start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
+                end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
+
+                # Store session in Session model
+                ManageSession.objects.create(
+                    session_name=session_name,
+                    start_date=start_date_obj,
+                    end_date=end_date_obj
+                )
+
+                if start_date_obj <= today <= end_date_obj:
+                    request.session['attendance_session_active'] = True
+                    messages.info(request, 'Attendance session is active today.')
+                    return redirect('manage_with_id', id=id)
+                    
+                else:
+                    request.session['attendance_session_active'] = False
+                    messages.info(request, 'Attendance session is not active today.')
+
+            except ValueError:
+                messages.error(request, 'Invalid date format.')
+        else:
+            messages.error(request, 'Name, start date and end date are required.')
+
+    # Get user from session for rendering
+    session = ManageSession.objects.all()
+    user_id = request.session.get('id')
+    user = User.objects.get(id=user_id) if user_id else None
+
+    return render(request, 'session.html', {'user': user, 'session': session})
+
 # 7. logout(request): Logs out the user by clearing session data and redirects to home.
 def logout(request):
     # Clear the session data
@@ -201,6 +245,11 @@ def logout(request):
 def submit_attendance(request,id=None):
     if request.method == "POST":
         try:
+            session_active = request.session.get('attendance_session_active', False)
+            if not session_active:
+                messages.error(request, 'Attendance session is not active.')
+                return JsonResponse({"success": False, "error": "Attendance session is not active"}, status=403)
+
             user = User.objects.get(id=id)
             attendance_data = json.loads(request.body.decode())
             # process attendance_data ...
@@ -259,9 +308,9 @@ def submit_attendance(request,id=None):
             return JsonResponse({"success": False, "error": str(e)})
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 
-
+        
 """
-I am still working on export data ...
+I am still working on export data funactions...
 
 """
 

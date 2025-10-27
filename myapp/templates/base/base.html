@@ -95,6 +95,12 @@
                         <span class="nav-text">Students</span>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{% url 'session' id=user.id %}" class="nav-link" data-page="session">
+                        <i class="fas fa-users"></i>
+                        <span class="nav-text">Session Management</span>
+                    </a>
+                </li>
             </ul>
 
             {% endif %}
