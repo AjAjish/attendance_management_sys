@@ -1119,6 +1119,158 @@ body {
   }
 }
 
+/* --- Attendance Session Page Styles --- */
+
+/* Style for the <h2> above the container */
+.content-body h2 {
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--primary-color);
+  margin-bottom: 24px;
+}
+
+/* Main container for the session forms */
+#session-container {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px var(--shadow-medium);
+  padding: 32px 40px;
+  max-width: 700px;
+  margin: 20px auto;
+  border: 1px solid var(--border-color);
+}
+
+/* Style the "Current Session" display text */
+#current-session p {
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  line-height: 1.8;
+  margin-bottom: 12px;
+}
+
+#current-session p strong {
+  color: var(--text-primary);
+  font-weight: 600;
+  min-width: 120px;
+  display: inline-block;
+}
+
+/* Style for both create and edit forms */
+#create-session-form,
+#edit-session-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Style form labels */
+#session-container label {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-weight: 500;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Style form text and date inputs */
+#session-container input[type="text"],
+#session-container input[type="date"] {
+  width: 100%;
+  padding: 12px;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  transition: border-color 0.2s;
+  font-family: inherit; /* Ensure font matches */
+}
+
+#session-container input[type="text"]:focus,
+#session-container input[type="date"]:focus {
+  border-color: var(--primary-color);
+  outline: none;
+}
+
+/* Remove the <br> tags' extra space */
+#session-container br {
+  display: none;
+}
+
+/* --- Button Styling --- */
+
+/* Base style for all buttons in this container */
+#session-container button {
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+/* Style for primary actions (Submit, Save, Edit) */
+#session-container button[type="submit"],
+#edit-session-btn {
+  background-color: var(--primary-color);
+  color: white;
+  border: 2px solid var(--primary-color);
+}
+
+#session-container button[type="submit"]:hover,
+#edit-session-btn:hover {
+  background-color: #2980b9; /* Darker blue from style.css */
+  border-color: #2980b9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.4);
+}
+
+/* Style for delete button (uses accent color) */
+#delete-session-btn {
+  background: transparent;
+  color: var(--accent-color);
+  border: 2px solid var(--accent-color);
+  font-weight: 600;
+}
+
+#delete-session-btn:hover {
+  background-color: var(--accent-color);
+  color: #ffffff;
+  box-shadow: 0 4px 12px rgba(231, 76, 60, 0.28);
+}
+
+/* Style for cancel button (uses ghost style) */
+#cancel-edit-btn {
+  background: transparent;
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+
+#cancel-edit-btn:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Group buttons together */
+#current-session,
+#edit-session-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+/* Make buttons in forms/display not take full width */
+#current-session button,
+#edit-session-form button {
+  width: auto;
+  margin-top: 10px;
+}
+
 /* Dashboard-specific styles - Scoped to avoid conflicts */
 
 /* Filter Controls Section */

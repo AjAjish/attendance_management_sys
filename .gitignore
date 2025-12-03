@@ -1,0 +1,4 @@
+# For env files
+*.env
+# for Python cache files
+__pycache__/

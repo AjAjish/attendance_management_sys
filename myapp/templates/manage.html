@@ -5,6 +5,19 @@
 {% block content %}
 <div class="student-page" id="studentPage">
     <h2 class="page-heading">Student Management</h2>
+
+    {% if not attendance_session_active and user%}
+        <div class="home-welcome-container">
+            <div class="home-welcome-card">
+                <h3>The Attendance Session Has Beem Done</h3>
+                <p>Please Add New Session To continue
+                    <a href="{% url 'session' user.id %}">Add Session</a>
+                </p>
+            </div>
+        </div>
+    {% endif %}
+
+    {% if attendance_session_active %}
     <p class="page-subtitle">Choose a year and section to view student records.</p>
 
     <!-- Year & Section Controls -->
@@ -60,7 +73,7 @@
                 <span>Submit Attendance</span>
             </button>
         </div>
-
+        
         <!-- Students Table -->
         <div class="table-wrapper {% if not students %}empty{% endif %}">
             {% if students %}
@@ -120,6 +133,7 @@
             {% endif %}
         </div>
     </form>
+    {% endif %}
 </div>
 
 <!-- Attendance Review Modal -->

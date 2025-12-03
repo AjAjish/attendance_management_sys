@@ -24,3 +24,12 @@ class User(models.Model):
 
 class AttendanceRecord(models.Model):
     attendance_record = models.JSONField(default=dict, blank=True)
+
+class ManageSession(models.Model):
+    session_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    session_name = models.CharField(max_length=100)
+    start_date = models.DateField()
+    end_date = models.DateField()
+
+    def __str__(self):
+        return f"{self.session_name} ({self.start_date} to {self.end_date})"
