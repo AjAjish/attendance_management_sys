@@ -165,6 +165,14 @@ def manage(request, id=None):
     selected_year = None
     selected_section = None
 
+    attendance_session_active = request.session.get('attendance_session_active')
+    print(f"Attendance Session Active: {attendance_session_active}")
+    
+    if attendance_session_active:
+        messages.info(request, "Attendance session is currently ACTIVE.")
+    else:
+        messages.info(request, "Attendance session is currently NOT active.")
+
     if request.method == 'POST':
         # Extract year and section for filtering
         year = request.POST.get('year')
@@ -181,27 +189,39 @@ def manage(request, id=None):
     user_id = request.session.get('id')
     user = User.objects.get(id=user_id) if user_id else None
 
+    if attendance_session_active:
+        messages.info(request, "Attendance session is currently ACTIVE.")
+    else:
+        messages.info(request, "Attendance session is currently NOT active.")
+
     return render(request, 'manage.html', {
         'user': user,
         'students': students,
         'years': years,
         'section': section,
         'selected_year': selected_year,
-        'selected_section': selected_section
+        'selected_section': selected_section,
+        "attendance_session_active": attendance_session_active,
     })
 
 def session_management(request, id=None):
 
+    user_id = request.session.get('id')
+    user = User.objects.get(id=user_id) if user_id else None
+    session = ManageSession.objects.all()
+    today = datetime.now().date()
     if request.method == "POST":
         session_name = request.POST.get('session_name')
         start_date = request.POST.get('start_date')
         end_date = request.POST.get('end_date')
 
+        edit_mode = request.POST.get('edit_mode',None)
+        delete_mode = request.POST.get('delete_mode',None)
+
         # Debugging prints
         print(f"Session Name: {session_name}, Start Date: {start_date}, End Date: {end_date}")
 
-        today = datetime.now().date()
-        if start_date and end_date and session_name:
+        if not edit_mode and not delete_mode:
             try:
                 start_date_obj = datetime.strptime(start_date, "%Y-%m-%d").date()
                 end_date_obj = datetime.strptime(end_date, "%Y-%m-%d").date()
@@ -212,25 +232,70 @@ def session_management(request, id=None):
                     start_date=start_date_obj,
                     end_date=end_date_obj
                 )
-
-                if start_date_obj <= today <= end_date_obj:
-                    request.session['attendance_session_active'] = True
-                    messages.info(request, 'Attendance session is active today.')
-                    return redirect('manage_with_id', id=id)
-                    
-                else:
-                    request.session['attendance_session_active'] = False
-                    messages.info(request, 'Attendance session is not active today.')
+                request.session['attendance_session_active'] = True
+                request.session['session_name'] = session_name
+                messages.success(request, 'Session created successfully. You can now take attendance.')
+                return redirect('manage_with_id', id=id)
 
             except ValueError:
                 messages.error(request, 'Invalid date format.')
         else:
             messages.error(request, 'Name, start date and end date are required.')
+        if edit_mode:
+            print("Edit mode activated")
+            session_check = request.POST.get('session_name')
+            try:
+                session = ManageSession.objects.get(session_name=session_check)
+                session.session_name = session_name
+                session.start_date = start_date_obj
+                session.end_date = end_date_obj
+                session.save()
+                messages.success(request, 'Session updated successfully.')
+            except ManageSession.DoesNotExist:
+                messages.error(request, 'Session not found for editing.')
+            except session_check is None:
+                messages.error(request, 'Session ID is required for editing.')
+        if delete_mode:
+            print("Delete mode activated")
+            session_check = request.POST.get('session_name')
+            try:
+                session = ManageSession.objects.get(session_name=session_check)
+                session.delete()
+                messages.success(request, 'Session deleted successfully.')
+            except ManageSession.DoesNotExist:
+                messages.error(request, 'Session not found for deletion.')
+    # Fetch the latest created session (safer than data[0])
+    session = ManageSession.objects.last()
 
-    # Get user from session for rendering
-    session = ManageSession.objects.all()
-    user_id = request.session.get('id')
-    user = User.objects.get(id=user_id) if user_id else None
+    if session:
+
+        start_date_db = session.start_date
+        end_date_db = session.end_date
+
+        # Ensure stored values are date objects (fixes '<=' type error)
+        if isinstance(start_date_db, str):
+            start_date_db = datetime.strptime(start_date_db, "%Y-%m-%d").date()
+
+        if isinstance(end_date_db, str):
+            end_date_db = datetime.strptime(end_date_db, "%Y-%m-%d").date()
+
+        print(f"DB Start Date: {start_date_db}, DB End Date: {end_date_db}, Today: {today}")
+
+        # RULE: today must be within range AND equal to end date
+        if start_date_db <= today <= end_date_db or today == end_date_db:
+            print("inside active session check")
+            request.session['attendance_session_active'] = True
+            messages.info(request, "Attendance session is ACTIVE today.")
+            if today == end_date_db:
+                messages.warning(request, "Today is the last day of the attendance session.")
+            return render(request, 'session.html', {'user': user, 'session': session})
+
+        else:
+            print("outside active session check")
+            request.session['attendance_session_active'] = False
+            messages.info(request, "Attendance session is NOT active today.")
+            session = None
+            return render(request, 'session.html', {'user': user, 'session': session})
 
     return render(request, 'session.html', {'user': user, 'session': session})
 
@@ -243,18 +308,15 @@ def logout(request):
 
 # 8. submit_attendance(request, id=None): Handles attendance submission, ensuring no duplicates for the same date.
 def submit_attendance(request,id=None):
+    
+    today = datetime.now().date()
     if request.method == "POST":
         try:
-            session_active = request.session.get('attendance_session_active', False)
-            if not session_active:
-                messages.error(request, 'Attendance session is not active.')
-                return JsonResponse({"success": False, "error": "Attendance session is not active"}, status=403)
 
             user = User.objects.get(id=id)
             attendance_data = json.loads(request.body.decode())
             # process attendance_data ...
             print(f"Attendance Data: {attendance_data}")
-            today = datetime.now().date()
             year = attendance_data.get('year')
             section = attendance_data.get('section')
             items = attendance_data.get('items', [])

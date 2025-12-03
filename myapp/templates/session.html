@@ -4,93 +4,98 @@
 {% block title %}Attendance Session{% endblock %}
 
 {% block content %}
-    <h2>Manage Attendance Session</h2>
+<h2>Manage Attendance Session</h2>
+<div id="session-container">
+{% if session and user %}
+    {% if session %}
+        <div id="current-session">
+            <p><strong>Current Session:</strong></p>
+            <p>Name: <span id="session-name">{{ session.session_name }}</span></p>
+            <p>Start Date: <span id="start-date">{{ session.start_date }}</span></p>
+            <p>End Date: <span id="end-date">{{ session.end_date }}</span></p>
 
-    <div id="session-container">
-        {% if session and user %}
-        {% for session in session %}
-            <div id="current-session">
-                <p><strong>Current Session:</strong></p>
-                <p>Name: <span id="session-name">{{ session.session_name }}</span></p>
-                <p>Start Date: <span id="start-date">{{ session.start_date }}</span></p>
-                <p>End Date: <span id="end-date">{{ session.end_date }}</span></p>
-                <button id="edit-session-btn" type="button">Edit</button>
-                <button id="delete-session-btn" type="button">Delete</button>
-                <br>
-                <br>
-                <h4>Now you can take Attendance <a href="{% url 'manage_with_id' id=user.id %}">Here</a></h4>
-        {% endfor %}
-            </div>
-            <form id="edit-session-form" method="POST" style="display:none;">
+            <!-- These buttons only show UI -->
+            <button id="edit-session-btn" type="button">Edit</button>
+
+            <!-- DELETE -->
+            <form method="POST" style="display:inline;">
                 {% csrf_token %}
-                <label for="edit_name">Name:</label>
-                <input type="text" id="edit_name" name="name" value="{{ session.session_name }}" required>
-                <br>
-                <label for="edit_start_date">Start Date:</label>
-                <input type="date" id="edit_start_date" name="start_date" value="{{ session.start_date }}" required>
-                <br>
-                <label for="edit_end_date">End Date:</label>
-                <input type="date" id="edit_end_date" name="end_date" value="{{ session.end_date }}" required>
-                <br>
-                <button type="submit">Save</button>
-                <button type="button" id="cancel-edit-btn">Cancel</button>
+                <input type="hidden" name="delete_mode" value="true">
+                <input type="hidden" name="session_name" value="{{ session.session_name }}">
+                <button type="submit" id="delete-session-btn">Delete</button>
             </form>
-        {% else %}
-            <form id="create-session-form" method="POST">
-                {% csrf_token %}
-                <label for="session_name">Name:</label>
-                <input type="text" id="session_name" name="session_name" required>
-                <br>
-                <label for="start_date">Start Date:</label>
-                <input type="date" id="start_date" name="start_date" required>
-                <br>
-                <label for="end_date">End Date:</label>
-                <input type="date" id="end_date" name="end_date" required>
-                <br>
-                <button type="submit">Start Session</button>
-            </form>
-        {% endif %}
-    </div>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const editBtn = document.getElementById('edit-session-btn');
-        const deleteBtn = document.getElementById('delete-session-btn');
-        const editForm = document.getElementById('edit-session-form');
-        const currentSession = document.getElementById('current-session');
-        const cancelEditBtn = document.getElementById('cancel-edit-btn');
+            <br><br>
+            <h4>Now you can take Attendance <a href="{% url 'manage_with_id' id=user.id %}">Here</a></h4>
+        </div>
+    {% endif %}
 
-        if (editBtn) {
-            editBtn.addEventListener('click', function() {
-                currentSession.style.display = 'none';
-                editForm.style.display = 'block';
-            });
-        }
+    <!-- EDIT FORM (uses POST names expected by Python) -->
+    <form id="edit-session-form" method="POST" style="display:none;">
+        {% csrf_token %}
+        <label for="edit_name">Name:</label>
+        <input type="text" id="edit_name" name="session_name" value="{{ item.session_name }}" required>
+        <br>
 
-        if (cancelEditBtn) {
-            cancelEditBtn.addEventListener('click', function() {
-                editForm.style.display = 'none';
-                currentSession.style.display = 'block';
-            });
-        }
+        <label for="edit_start_date">Start Date:</label>
+        <input type="date" id="edit_start_date" name="start_date" value="{{ item.start_date }}" required>
+        <br>
 
-        if (deleteBtn) {
-            deleteBtn.addEventListener('click', function() {
-                if (confirm('Are you sure you want to delete this session?')) {
-                    // Create a form to submit the delete request
-                    const form = document.createElement('form');
-                    form.method = 'POST';
-                    form.action = '';
-                    const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]').value;
-                    form.innerHTML = `
-                        <input type="hidden" name="csrfmiddlewaretoken" value="${csrfToken}">
-                        <input type="hidden" name="delete_session" value="1">
-                    `;
-                    document.body.appendChild(form);
-                    form.submit();
-                }
-            });
-        }
-    });
-    </script>
+        <label for="edit_end_date">End Date:</label>
+        <input type="date" id="edit_end_date" name="end_date" value="{{ item.end_date }}" required>
+        <br>
+
+        <input type="hidden" name="edit_mode" value="true">
+
+        <button type="submit">Save</button>
+        <button type="button" id="cancel-edit-btn">Cancel</button>
+    </form>
+
+{% else %}
+
+    <!-- CREATE FORM -->
+    <form id="create-session-form" method="POST">
+        {% csrf_token %}
+
+        <label for="session_name">Name:</label>
+        <input type="text" id="session_name" name="session_name" required>
+        <br>
+
+        <label for="start_date">Start Date:</label>
+        <input type="date" id="start_date" name="start_date" required>
+        <br>
+
+        <label for="end_date">End Date:</label>
+        <input type="date" id="end_date" name="end_date" required>
+        <br>
+
+        <button type="submit">Start Session</button>
+    </form>
+
+{% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+
+    const editBtn = document.getElementById('edit-session-btn');
+    const editForm = document.getElementById('edit-session-form');
+    const currentSession = document.getElementById('current-session');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+
+    if (editBtn) {
+        editBtn.addEventListener('click', function() {
+            currentSession.style.display = 'none';
+            editForm.style.display = 'block';
+        });
+    }
+
+    if (cancelEditBtn) {
+        cancelEditBtn.addEventListener('click', function() {
+            editForm.style.display = 'none';
+            currentSession.style.display = 'block';
+        });
+    }
+});
+</script>
 {% endblock %}
