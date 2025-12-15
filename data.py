@@ -11,7 +11,7 @@ for item in data:
         roll_number=item.get("roll_number"),
         course=item.get("course", "BE Computer Science and Engineering"),
         year=item.get("year"),
-        class_section=item.get("class_section"),
+        class_section=item.get("class_section "),
     )
     student.save()
 

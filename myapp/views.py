@@ -132,10 +132,10 @@ def student(request, id=None):
     if request.method == 'POST':
         year = request.POST.get('year')
         section = request.POST.get('section')
-
+        print(f"Selected year{year} -- Selected section{section}")
         if year and section: 
             students = Student.objects.filter(year=year, class_section=section)
-
+        print(students)
         user_id = request.session.get('id')
         user = User.objects.get(id=user_id) if user_id else None
 
@@ -157,52 +157,6 @@ def student(request, id=None):
         'section': section,
     })
 
-# 6. manage(request, id=None): Allows admin to filter and manage student records.
-def manage(request, id=None):
-    years = [2, 3, 4]
-    section = None
-    students = None
-    selected_year = None
-    selected_section = None
-
-    attendance_session_active = request.session.get('attendance_session_active')
-    print(f"Attendance Session Active: {attendance_session_active}")
-    
-    if attendance_session_active:
-        messages.info(request, "Attendance session is currently ACTIVE.")
-    else:
-        messages.info(request, "Attendance session is currently NOT active.")
-
-    if request.method == 'POST':
-        # Extract year and section for filtering
-        year = request.POST.get('year')
-        section = request.POST.get('section')
-        print(f"Filtering students for Year: {year}, Section: {section}")
-        selected_year = year
-        selected_section = section
-
-        # After filtering, fetch students for UI display
-        if year and section:
-            students = Student.objects.filter(year=year, class_section=section)
-
-    # Get user from session for rendering
-    user_id = request.session.get('id')
-    user = User.objects.get(id=user_id) if user_id else None
-
-    if attendance_session_active:
-        messages.info(request, "Attendance session is currently ACTIVE.")
-    else:
-        messages.info(request, "Attendance session is currently NOT active.")
-
-    return render(request, 'manage.html', {
-        'user': user,
-        'students': students,
-        'years': years,
-        'section': section,
-        'selected_year': selected_year,
-        'selected_section': selected_section,
-        "attendance_session_active": attendance_session_active,
-    })
 
 def session_management(request, id=None):
 
@@ -261,6 +215,8 @@ def session_management(request, id=None):
             try:
                 session = ManageSession.objects.get(session_name=session_check)
                 session.delete()
+                request.session['attendance_session_active'] = False
+                del request.session['session_name']
                 messages.success(request, 'Session deleted successfully.')
             except ManageSession.DoesNotExist:
                 messages.error(request, 'Session not found for deletion.')
@@ -281,6 +237,10 @@ def session_management(request, id=None):
 
         print(f"DB Start Date: {start_date_db}, DB End Date: {end_date_db}, Today: {today}")
 
+        if start_date_db > today:
+            messages.warning(request, "Attendance session has not started yet.")
+            return render(request, 'session.html', {'user': user, 'session': session})
+
         # RULE: today must be within range AND equal to end date
         if start_date_db <= today <= end_date_db or today == end_date_db:
             print("inside active session check")
@@ -298,6 +258,54 @@ def session_management(request, id=None):
             return render(request, 'session.html', {'user': user, 'session': session})
 
     return render(request, 'session.html', {'user': user, 'session': session})
+
+
+# 6. manage(request, id=None): Allows admin to filter and manage student records.
+def manage(request, id=None):
+    years = [2, 3, 4]
+    section = None
+    students = None
+    selected_year = None
+    selected_section = None
+
+    attendance_session_active = request.session.get('attendance_session_active')
+    print(f"Attendance Session Active: {attendance_session_active}")
+    
+    if attendance_session_active:
+        messages.info(request, "Attendance session is currently ACTIVE.")
+    else:
+        messages.info(request, "Attendance session is currently NOT active.")
+
+    if request.method == 'POST':
+        # Extract year and section for filtering
+        year = request.POST.get('year')
+        section = request.POST.get('section')
+        print(f"Filtering students for Year: {year}, Section: {section}")
+        selected_year = year
+        selected_section = section
+
+        # After filtering, fetch students for UI display
+        if year and section:
+            students = Student.objects.filter(year=year, class_section=section)
+
+    # Get user from session for rendering
+    user_id = request.session.get('id')
+    user = User.objects.get(id=user_id) if user_id else None
+
+    if attendance_session_active:
+        messages.info(request, "Attendance session is currently ACTIVE.")
+    else:
+        messages.info(request, "Attendance session is currently NOT active.")
+
+    return render(request, 'manage.html', {
+        'user': user,
+        'students': students,
+        'years': years,
+        'section': section,
+        'selected_year': selected_year,
+        'selected_section': selected_section,
+        "attendance_session_active": attendance_session_active,
+    })
 
 # 7. logout(request): Logs out the user by clearing session data and redirects to home.
 def logout(request):
@@ -322,7 +330,8 @@ def submit_attendance(request,id=None):
             items = attendance_data.get('items', [])
             username = user.username
             
-            # Check if attendance for this date, year and section already exists
+            """
+            # # Check if attendance for this date, year and section already exists
             existing_records = AttendanceRecord.objects.filter(
                 attendance_record__year=year,
                 attendance_record__section=section,
@@ -333,6 +342,7 @@ def submit_attendance(request,id=None):
                 messages.error(request, 'Attendance for today has already been submitted!')
                 return JsonResponse({"success": False, "error": "Attendance for today already submitted"})
 
+            """
             """
             attendance_dict structure:
             {
@@ -348,6 +358,25 @@ def submit_attendance(request,id=None):
                 }
             }
             """
+            
+            # if data found on same date then it will overwrite to submit .
+
+            existing_records = AttendanceRecord.objects.filter(
+                attendance_record__year=year,
+                attendance_record__section=section,
+                attendance_record__has_key=str(today)
+            )
+
+            if existing_records.exists():
+                print("Code in existing record update block")
+                existing_record = existing_records.first()
+                attendance_record = existing_record.attendance_record
+                attendance_record[str(today)] = {"AttendanceData": items}
+                existing_record.attendance_record = attendance_record
+                existing_record.save()
+                messages.success(request, 'Attendance updated successfully!')
+                return JsonResponse({"success": True})  
+
             attendance_dict = {}
             attendance_dict={
                 "year":year,
